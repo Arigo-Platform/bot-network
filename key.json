@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "arigo-platform",
+  "private_key_id": "70bd01c8333df65f063e07db486ac6187368d7fd",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC56BbZo49ZY2y7\nLBcbfzXaS6fRvYYx3o2D+jNEB/BaOuhhU4Ibd9QKUpFxN/G/6CLtOMJRP34stSrI\n1UN+9ZX8qVfWT/ZFXloVCmURHWIXPIYdnOCE9F0lmi/kmRCEoFnB357IF30LeRMv\nZ+Oyk+XSE9AFQrj/24FwgduYSQuURtoHQMXlHG1/qji4ZhtXxzHdZahLdesONbGD\nKrgCCa/rkIoGaBMkBpZh9dRd6N3OvjODyckz8CQvGtYhPgAfpp4wOhTpG6wviHS/\nS6POoKuISCty3rL35lMTYlGk2XTh84BYU1kj9wYDRqFdKBo+2Lwiou0zJHHfXeEB\nFdPaO8G1AgMBAAECggEAERQwEzb6OqNOcCSVC97kLuWP6Y4gh7DTLep8rrWPAG8U\nfap7E7Ruu7MJrw3NbQyxtrrl6Sps2EUdhN1Iyd9cc92H1wW6EXXhTzkI/2lEY2+Z\nP5uzqas8anGvkC/6q0CC9nNphibYQ0dQeqSv7640KRhOXklarxC2o8QeTS96u5id\nZwVKaP1qirt/QSN3k5MaynKkaVRGis5UHAmAjR2mF95x4xRu9ZaWhOpr8heNCtQR\ntJ0okDiBN1EQ3mCFfnPK1pQJcfSTd3iY1dV6wYAIn0oUfzTMMaEUkDupUBLI9r7l\nfrU9zZFbu5ep9PSf4YFzHhZzx5N0UKoyoqjMQeLE+QKBgQDzvLNk+p9bqj5dXTFZ\nf6wjF+avGbqmsg31UKNUm+G7/r4MPfCcvTRnnDJPknzkgK70fTJhs0Irgh5MlO3N\nxSdbue/QrPDO4kUG/S82CnuW7vJCJ0hejerQyOkePiQWTFz6pFmrjWgJhHmpAs4T\nKAz5xgSROiAoBe0khjm3Nu3SvQKBgQDDQoor2aXFLNRRR1cKRkmfVgBznr5t+PvT\nnDIs2hv0EroS/nasmkSLl7pnd1QoOv7SUQnWnI8VZQq7IN7wx1s+aC3MdSSQchJx\nmTx+0UKt9tEnI3Ua2y3lqs1+dakckkGRh5iVhP23Q8xnlv3nvx33Nkt5EMkw2niO\nxwPp7OpWWQKBgGBcfDgx9YrR9bIHxBj0JuQA8QzNCUQaJPaVmN08e7RNdGl2m4f8\nLZnA4QsgiQv17DVwwdhqfICjAsOYJaQyi+rxyeQgW1wPjObEdkPRRSdY9KI+0ZfA\nV9OPesqgGrhOHHxjOahfUYBhxY+SMlLUhLzDEs8vwcLRBP5pqqvKpZ+pAoGAOoPe\nVHXNL+HXXuQ6OWIG/jEPwZZ5Cwvqq+fLQZW7etGB4d9QQTmaARtfSVKBbe0AIJcY\nk7AnUQoOxTV8mjukJHekAfm5E3CcBl8dugOMMAYfd9MwbPPyNTmSi6tHGsDZ1XsF\nRwmr3xf6UbD2NlUX7dXfmFBnerR+HIuXqKrPL0ECgYEAj4QzlKsHzgs3IkezZJxX\ndjM9IvDaW+9KqwqOd5hqJpgIJkar6WVgrWpDUOgLUw4nx1x87GSENxDG8HvrQABa\nBURqw+Ol8YWEZdwMRmH6VsE7qIJIbTuetxYAhRqBNWCtdP807DxSiG4eU9xyDhWa\nLd5IuTqFmAgJ/kHHZes2WwQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "arigo-bot@arigo-platform.iam.gserviceaccount.com",
+  "client_id": "109581300978250757068",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/arigo-bot%40arigo-platform.iam.gserviceaccount.com"
+}

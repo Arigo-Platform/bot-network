@@ -1,0 +1,20 @@
+{
+  "files": {
+    "commands/createbind.js": [
+      {
+        "id": "d1b704f9-b22f-4a21-b0ee-a830c99ab94c",
+        "line": 55,
+        "version": 1216,
+        "index": 2269
+      }
+    ],
+    "index.js": [
+      {
+        "id": "358fa5fc-7917-46a8-80fe-891a5c38aa84",
+        "line": 361,
+        "version": 1941,
+        "index": 10934
+      }
+    ]
+  }
+}
