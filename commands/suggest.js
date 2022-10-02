@@ -40,11 +40,11 @@ const suggestion = interaction.options.getString('suggestion');
     // Post Suggestion
            
             
-                embed.setColor(interaction.guild.me.displayColor)
+    embed.setColor(interaction.guild.me.displayColor)
     embed.setTitle(`New Suggestion from ${interaction.member.user.username}`)
     embed.setDescription(suggestion)
-embed.setFooter({
-  text: `ID: ${suggestionId} | Powered by Arigo Platform`,
+    embed.setFooter({
+  text: `ID: ${suggestionId} | Powered by Arigo`,
 iconURL: interaction.client.user.displayAvatarURL()
   })
   logChannel.send({ embeds: [embed], fetchReply: true }).then(function (message) {

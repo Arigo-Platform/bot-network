@@ -20,7 +20,7 @@ module.exports = {
     // 📁 - Check if they're verified
       const cityRef = db.collection('verification').doc(`${userId}`);
       const doc = await cityRef.get();
-if (doc.exists) {
+      if (doc.exists) {
     // Get Roblox Group
         const cityRfef = db.collection('bots').doc(`${serverId}`).collection('verification').doc(`groupId`);
       const doc2 = await cityRfef.get();
@@ -43,20 +43,30 @@ if (doc.exists) {
       const doc3 = await cityRfeff.get();
   
       if(doc3.exists) {
-      embed.addFields(
-        { name: '✍️ Role Update', value: `Added <@&${doc3.data().discRoleId}>`, inline: true  }
-        )
+        if(interaction.member.roles.cache.has(doc3.data().discRoleId) === true) {
+          embed.addFields(
+            { name: '✍️ Role Update', value: `Up to date`, inline: true  }
+          ) 
+        } else {
+          embed.addFields(
+            { name: '✍️ Role Update', value: `Added <@&${doc3.data().discRoleId}>`, inline: true  }
+          )
+        }
+      
         
       } else {
-embed.addFields(
+        embed.addFields(
         { name: '✍️ Role Update', value: `Up to date`, inline: true  }
-        )      }
+      ) 
+        }
   
     embed.setTitle("🏁 Account Updated")
     interaction.editReply({ embeds: [embed] })
     // Catch The Nickname Error
     user.setNickname(`${rblxUsername}`).catch(err => {
-    interaction.followUp({ content: 'I was unable to update your server profile due to server permissions!', ephemeral: true })
+      setTimeout(function(){ 
+        interaction.followUp({ content: 'I was unable to update your server profile due to server permissions!', ephemeral: true })
+      }, 5000); //time in milliseconds
         })
       user.roles.add(doc3.data().discRoleId).catch(err => {
     // Unable to add roles

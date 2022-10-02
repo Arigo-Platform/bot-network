@@ -13,59 +13,57 @@ module.exports = {
 
         const text = interaction.options.getString('question')
       // Slack info
-const { WebClient } = require('@slack/web-api');
-// Read a token from the environment variables
-const Slacktoken = process.env['SLACK_TOKEN']
-// Initialize
-const web = new WebClient(Slacktoken);
-const conversationId = 'C037PJVBAAE';
-const threatSlack = 'C038XJWBM3N';
+      const { WebClient } = require('@slack/web-api');
+      // Read a token from the environment variables
+      const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
+      // Initialize
+      const web = new WebClient(Slacktoken);
+      const conversationId = 'C037PJVBAAE';
+      const threatSlack = 'C038XJWBM3N';
 
 
     // Start The Command Function
     function doMagic8BallVoodoo() {
-// Get Response Options
-var rand = [
-  "It is certain!",
-  "It is decidedly so!",
-  "Without a doubt!",
-  "Definitely!",
-  "I'm unsure!",
-  "I think!",
-  "Most Likely!",
-  "Outlook good!",
-  "Yes!",
-  "Signs point to yes!",
-  "Sadly no!"
-];
-    return rand[Math.floor(Math.random()*rand.length)];
-};
-// Send Reply
+    // Get Response Options
+    var rand = [
+      "It is certain!",
+      "It is decidedly so!",
+      "Without a doubt!",
+      "Definitely!",
+      "I'm unsure!",
+      "I think!",
+      "Most Likely!",
+      "Outlook good!",
+      "Yes!",
+      "Signs point to yes!",
+      "Sadly no!"
+    ];
+        return rand[Math.floor(Math.random()*rand.length)];
+    };
+    //  Send Reply
     embed.setTitle("8 Ball Says...")
     embed.addFields(
       { name: 'Question', value: `${text}`, inline: true },
       { name: 'Answer', value: `${doMagic8BallVoodoo()}`, inline: true },
 
       )
-  interaction.reply({ embeds: [embed] })    
-// Blacklisted Slack Logging
+      interaction.reply({ embeds: [embed] })    
+      // Blacklisted Slack Logging
       const blacklisted =[
-  "open source",
-  "oss",
-  "ddos",
-  "luke",
-  "sayz",
-  "hyra",
-  "sam",
-  "andre",
-  "unlicense",
-  "alt",
-  "arigo"
-]
-if(blacklisted.some(blacklist => text.toLowerCase().includes(blacklist))) {
-
-        
-            (async () => {
+      "open source",
+      "oss",
+      "ddos",
+      "luke",
+      "sayz",
+      "hyra",
+      "sam",
+      "andre",
+      "unlicense",
+      "alt",
+      "arigo"
+    ]
+    if(blacklisted.some(blacklist => text.toLowerCase().includes(blacklist))) {
+    (async () => {
 
   // Post a message to the channel, and await the result.
   // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage

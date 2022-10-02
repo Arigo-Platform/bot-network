@@ -7,13 +7,13 @@ module.exports = {
 	async execute(interaction, embed, db) {
 
     // Slack
-const { WebClient } = require('@slack/web-api');
-// Read a token from the environment variables
-const Slacktoken = process.env['SLACK_TOKEN']
-// Initialize
-const web = new WebClient(Slacktoken);
-const conversationId = 'C037PJVBAAE';
-const threatSlack = '1';
+    const { WebClient } = require('@slack/web-api');
+    // Read a token from the environment variables
+    const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
+    // Initialize
+    const web = new WebClient(Slacktoken);
+    const conversationId = 'C037PJVBAAE';
+    const threatSlack = '1';
     // Basic Vars
 
     const { MessageActionRow, MessageButton } = require('discord.js');

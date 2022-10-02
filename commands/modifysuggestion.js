@@ -61,11 +61,17 @@ authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
   const { MessageEmbed } = require('discord.js');
+  const sLink = new MessageActionRow()  
+          .addComponents(
+				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+					.setLabel('View Suggestion')
+					.setStyle('LINK')
+        )   
   const todmembed = new MessageEmbed()
     todmembed.setColor(interaction.guild.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
-    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your [suggestion](https://discord.com/channels/${serverId}/${suggestionchannel}/${message.id}) in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
-      authorInfo.send({ embeds: [todmembed] 
+    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
+      authorInfo.send({ embeds: [todmembed], components: [sLink] 
           }).catch(error => {  
   // Could not DM the user - DMs off
 }); 
@@ -129,11 +135,17 @@ authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
     const { MessageEmbed } = require('discord.js');
+    const sLink = new MessageActionRow()  
+          .addComponents(
+				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+					.setLabel('View Suggestion')
+					.setStyle('LINK')
+        )   
   const todmembed = new MessageEmbed()
     todmembed.setColor(interaction.guild.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
-    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your [suggestion](https://discord.com/channels/${serverId}/${suggestionchannel}/${message.id}) in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
-      authorInfo.send({ embeds: [todmembed] 
+    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
+      authorInfo.send({ embeds: [todmembed], components: [sLink] 
           }).catch(error => {  
   // Could not DM the user - DMs off
 }); 
@@ -196,12 +208,18 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
-const { MessageEmbed } = require('discord.js');
+  const { MessageEmbed } = require('discord.js');
+  const sLink = new MessageActionRow()  
+          .addComponents(
+				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+					.setLabel('View Suggestion')
+					.setStyle('LINK')
+        )   
   const todmembed = new MessageEmbed()
     todmembed.setColor(interaction.guild.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
-    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your [suggestion](https://discord.com/channels/${serverId}/${suggestionchannel}/${message.id}) in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
-      authorInfo.send({ embeds: [todmembed] 
+    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
+      authorInfo.send({ embeds: [todmembed], components: [sLink]
           }).catch(error => {  
   // Could not DM the user - DMs off
 }); 
@@ -265,11 +283,17 @@ authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
 const { MessageEmbed } = require('discord.js');
+const sLink = new MessageActionRow()  
+          .addComponents(
+				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+					.setLabel('View Suggestion')
+					.setStyle('LINK')
+        )   
   const todmembed = new MessageEmbed()
     todmembed.setColor(interaction.guild.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
-    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your [suggestion](https://discord.com/channels/${serverId}/${suggestionchannel}/${message.id}) in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
-      authorInfo.send({ embeds: [todmembed] 
+    todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
+      authorInfo.send({ embeds: [todmembed], components: [sLink] 
           }).catch(error => {  
   // Could not DM the user - DMs off
 }); 

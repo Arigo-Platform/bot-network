@@ -42,6 +42,7 @@ let logChannel = interaction.guild.channels.cache.get( doc2.data().id)
   
  if(interaction.member.roles.cache.has(doc.data().id) === true) {
 // They have permissions, check if user is kickable
+    try {
    if(offenderInfo.kickable === true) {
 
 
@@ -75,21 +76,14 @@ let logChannel = interaction.guild.channels.cache.get( doc2.data().id)
   { name: 'Reason', value: `${reason}`, inline: true },
   { name: 'Case ID', value: `${caseId}`, inline: true })
 offender.send({ embeds: [embedtoSend] }).then(value => {
-    // Remove Case Information
-  interaction.followUp({ content: "To remove this case, please run ``/case " + caseId + "`` " + `and utilize the "Remove Case" button`, ephemeral: true })
 }).catch(error => {  
-	embed.setTitle("🎉 Success")
-  embed.setDescription(`The server kick has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.\n\n` + "I was unable to DM the user due to their privacy settings on Discord. The kick **has** still been issued & logged.")
-  embed.setColor("YELLOW")
   embed.fields = [];
-  embed.addFields(
-  { name: 'Reason', value: `${reason}`, inline: true },
-  { name: 'Case ID', value: `${caseId}`, inline: true },
-)
-  interaction.editReply({ embeds: [embed] })
+  embed.setTitle("😞 Unable to Notify")
+  embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been kicked.`)
+  embed.setColor("RED")
+  interaction.followUp({ embeds: [embed], ephemeral: true })
 });   
-   
-     forkick.kick(`This user was kicked by ${username} (${userId}) for ${reason}, through the Arigo Platform Bot Network.`)
+      interaction.guild.members.kick(`${forkick.user.id}`, `This user was kicked by ${username} (${userId}) for ${reason}.`)
   embed.fields = [];
   const data = {
     offender: offender.id,
@@ -109,21 +103,26 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
   logChannel.send({ embeds: [embed] })
 
       }
-   
+    } catch {
+      embed.setTitle("😞 Command Error")
+      embed.setDescription(`I was unable to kick this user from the server, this is most likely because they're not within the server.`)
+      embed.setColor("RED")
+      return interaction.reply({ embeds: [embed], ephemeral: true })
+    }
   } else {  
    // They don't have the required role to run the command
     embed.setTitle("😞 Insufficient Permissions")
     embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-   embed.setColor("RED")
-   interaction.reply({ embeds: [embed], ephemeral: true })
+    embed.setColor("RED")
+   return interaction.reply({ embeds: [embed], ephemeral: true })
 
    
   }
 } else {
-  embed.setTitle("⚠️ Logging Channel Not Set ")
-  embed.setDescription("A logging channel is not set via the dashboard and the server kick has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
-  embed.setColor("RED")
-  interaction.reply({ embeds: [embed], ephemeral: true})
+    embed.setTitle("⚠️ Logging Channel Not Set ")
+    embed.setDescription("A logging channel is not set via the dashboard and the server kick has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
+    embed.setColor("RED")
+    return interaction.reply({ embeds: [embed], ephemeral: true})
 
 }
   },

@@ -39,7 +39,7 @@ var newArray = myArray.filter(function(f) { return f !== 'x' })
             resp = math.evaluate(equation)
         } catch (e) {
             embed.setTitle("⚠️ Command Failure")
-            embed.setDescription("I'm unable to provide an answer to that question, please try again!")
+            embed.setDescription("I'm unable to calculate that question, please try again!")
             return interaction.reply({ embeds: [embed] })
         }
 // Success

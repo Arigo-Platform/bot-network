@@ -59,6 +59,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   if(blurb.includes(emojis)) {
     // Code added
     embed.setTitle(`👋 Welcome to ${interaction.member.guild.name}, ${robloxUsername}`)
+    embed.setColor("GREEN")
     embed.setDescription(`${robloxUsername}, you've been verified with Arigo Platform so you've been given the <@&${verroleid.data().id}> role!`)
     interaction.editReply({ embeds: [embed], components: [] })
     // Add to database
@@ -115,7 +116,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
 // Slack Stuff
 const { WebClient } = require('@slack/web-api');
 // Read a token from the environment variables
-const Slacktoken = process.env['SLACK_TOKEN']
+const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
 // Initialize
 const web = new WebClient(Slacktoken);
 const conversationId = 'C037PJVBAAE';
@@ -136,32 +137,11 @@ const threatSlack = 'C03DVRER6JG';
 const verroleid = await cityReff.get();
     // Define Roblox ID
     let robloxId = await noblox.getIdFromUsername(robloxinputUsername)
-    // See if they're verified with Bloxlink
-        axios.get(`https://api.blox.link/v1/user/${discordId}`)
-    .then(async function (response) {
-      if(response.data.status === 'ok'){
-        // Verified with Bloxlink
-        
-      let robloxUsername = await noblox.getUsernameFromId(response.data.primaryAccount)
-embed.setTitle(`👋 Welcome to ${interaction.member.guild.name}, ${robloxUsername}`)
-      embed.setDescription(`${robloxUsername}, you've successfully been verified so you've been given the <@&${verroleid.data().id}> role!`)
-      interaction.editReply({ embeds: [embed], components: [] })
-      // Add Verified Role
-      user.roles.add(verroleid.data().id)
-      // Add to db
-        const data = {
-    "rblxId": response.data.primaryAccount,
-    "type": "roblox",
-    "verifiedOn": serverId,
-    "platform": "Bloxlink"
-  }
-  const res = await db.collection("verification").doc(`${discordId}`).set(data)
-        return
-      } else {
+   
         myFunction()
-      }
       
-    })
+      
+    
     
     // See if they're verified in Arigo
     axios.get(`https://api-test-for-client-id.ishaanfrom.repl.co/bot/verification/discord/${discordId}/${serverId}`)
@@ -240,13 +220,16 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
 
 const collector = interaction.channel.createMessageComponentCollector({ filter, time: 120000 });
       // Get Emojis
-      const emoji1 = randomEmoji()
-      const emoji2 = randomEmoji()
-      const emoji3 = randomEmoji()
-      const emoji4 = randomEmoji()
-      const emoji5 = randomEmoji()
-      const emoji6 = randomEmoji()
-      const emojis = emoji1 + emoji2 + emoji3 + emoji4 + emoji5 + emoji6
+      const emojiList = [ '😃', '😀', '😄', '😁', '😆', '😅', '🤣', '😂', '😎', '🙈', '🥳', '🥸', '🥺', '🥱', '🎃', '🐶', '🐱', '🐭', '🐹', '🦊', '🦆', '🐻', '🐸', '🐼', '🐤', '🐣', '🐠', '🦞', '🐬', '🍏', '🍎', '🍐', '🍊', '🍋', '🍉', '🍇', '🍓', '🍕', '🌭', '🍟', '🍖', '⚽️', '🏀', '🏈', '⚾️', '🥎', '🛹', '🚗']
+      
+      const emoji1 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emoji2 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emoji3 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emoji4 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emoji5 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emoji6 = emojiList[Math.floor(Math.random()*emojiList.length)];
+      const emojis = emoji1 + emoji2 + emoji3 + emoji4 + emoji5 + emoji6      
+
       // Send message with code
       embed.setTitle("📑 Verify your account")
       embed.setDescription(`Please paste the following code in your roblox About Me and click the "Code Added" button when done.\n\n**Code:** ` + "``" + emojis + "``")
@@ -267,6 +250,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   if(blurb.includes(emojis)) {
     // Code added
     embed.setTitle(`👋 Welcome to ${interaction.member.guild.name}, ${robloxUsername}`)
+    embed.setColor("GREEN")
     embed.setDescription(`${robloxUsername}, you've been verified with Arigo Platform so you've been given the <@&${verroleid.data().id}> role!`)
     interaction.editReply({ embeds: [embed], components: [] })
     // Add to database
