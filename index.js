@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
-const { token } = require('./config.json');
-const { guildId } = require('./config.json');
+const token = process.env["token"]
+const guildId = process.env["guildId"]
 const { MessageEmbed } = require('discord.js');
 const express = require('express')
 const app = express()
@@ -9,6 +9,23 @@ const port = 3000
 const axios = require('axios');
 const { MessageActionRow, MessageButton, Modal, TextInputComponent } = require('discord.js');
 const { ActionRowBuilder, SelectMenuBuilder } = require('discord.js');
+
+// Database
+const {Firestore} = require('@google-cloud/firestore');
+        const firestore = new Firestore();
+        const db = new Firestore({
+          projectId: 'arigo-platform',
+          keyFilename: 'key.json',
+        });
+
+// Slack info
+const { WebClient } = require('@slack/web-api');
+// Read a token from the environment variables
+const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
+// Initialize
+const web = new WebClient(Slacktoken);
+const conversationId = 'C037PJVBAAE';
+const threatSlack = 'C03TPE2MAFP';
 
 app.get('/', (req, res) => {
   res.send('Server Not Found - Key Missing')
@@ -33,6 +50,7 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', async () => {
+  
   const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -47,14 +65,46 @@ client.once('ready', async () => {
         .setLabel('Unsubscribe')
         .setStyle('DANGER')
 			);
+  const newsletterRow = new MessageActionRow()
+  .addComponents(
+    new MessageButton()
+    .setLabel("Complete Form")
+    .setStyle('LINK')
+    .setURL('https://forms.gle/4xNicVNPMvvF3K3K9'
+    )
+  )
+  // DM people stufff
+  // const events = await db.collection('newsletter')
+  // events.get().then((querySnapshot) => {
+  //     const tempDoc = querySnapshot.docs.map((doc) => {
+  //       return { id: doc.id, ...doc.data() }
+  //     })
+  //     // console.log(tempDoc)
+  //     tempDoc.forEach(async user => {
+  //     const toDm = await client.users.fetch(`${user.id}`)
+  //     const newsletterembed = new MessageEmbed()
+  //     newsletterembed.setTitle("Arigo Newsletter #1 - Submit some feedback")
+  //     newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening today.\n\nWe're working hard everyday to ensure that we create the best and most diverse platform to help you manage your incredible Discord community. With that being said, your opinion matters greatly to us, so if you have some extra time today, we'd love to hear it.\n\nPlease use the botton below to submit a form directly to Team Arigo so we can ensure Arigo is built with your specifications in mind\n\nYou'll continue hearing from us with the latest and greatest information about Arigo and all the incredible features & events to come.\n\nBest,\nYour friends at Arigo`)
+  //     newsletterembed.setColor("#ed1d24")
+  //     newsletterembed.setImage('https://media.discordapp.net/attachments/952670803760152606/1026998513671884860/unknown.png')
       
-  const toDm = await client.users.fetch('695167288801886269')
-  const newsletterembed = new MessageEmbed()
-  newsletterembed.setTitle("Exclusive Newsletter Post - 50% off your subscription")
-  newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening and we're here to deliver some good news. After manual review of your account and your active subscriptions, we're happy to let you know that you're eligible for 50% off next month for one bot. You can use this promotion on one of your existing bots or on a new bot.\n\nPlease email accounts@arigoapp.com to claim, promotion ends <t:1661022000:R>.\n\nHave a great rest of your Tuesday,\n Your friends at Arigo`)
-  newsletterembed.setColor("#ed1d24")
-  newsletterembed.setImage('https://cdn.discordapp.com/attachments/1007352628365238432/1009204973525016586/unknown.png')
-  // await toDm.send({ embeds: [newsletterembed] })
+  //     try {
+  //       // await toDm.send({ embeds: [newsletterembed], components: [newsletterRow] })
+  //     } catch {
+  //      return console.log(`Was unable to DM ${user.id}`)
+  //     }
+  //     console.log(`Processed ${user.id}`)
+  //     })
+    // })
+  
+
+  // const toDm = await client.users.fetch('695167288801886269')
+  // const newsletterembed = new MessageEmbed()
+  // newsletterembed.setTitle("Exclusive Newsletter Post - 50% off your subscription")
+  // newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening and we're here to deliver some good news. After manual review of your account and your active subscriptions, we're happy to let you know that you're eligible for 50% off next month for one bot. You can use this promotion on one of your existing bots or on a new bot.\n\nPlease email accounts@arigoapp.com to claim, promotion ends <t:1661022000:R>.\n\nHave a great rest of your Tuesday,\n Your friends at Arigo`)
+  // newsletterembed.setColor("#ed1d24")
+  // newsletterembed.setImage('https://cdn.discordapp.com/attachments/1007352628365238432/1009204973525016586/unknown.png')
+  // // await toDm.send({ embeds: [newsletterembed] })
 
   const supportEmbed = new MessageEmbed()
   supportEmbed.setTitle("Join the newsletter")
@@ -183,23 +233,6 @@ logChannel.send({ embeds: [editedmsg] })
 })
 
 
-// Database
-const {Firestore} = require('@google-cloud/firestore');
-        const firestore = new Firestore();
-        const db = new Firestore({
-          projectId: 'arigo-platform',
-          keyFilename: 'key.json',
-        });
-
-// Slack info
-const { WebClient } = require('@slack/web-api');
-// Read a token from the environment variables
-const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
-// Initialize
-const web = new WebClient(Slacktoken);
-const conversationId = 'C037PJVBAAE';
-const threatSlack = 'C03TPE2MAFP';
-
 
 // Blacklisted Words
 
@@ -290,7 +323,7 @@ client.on('guildMemberAdd', member => {
   }),
     welcomeembed.setColor("#ed1d24")
     welcomeembed.setTimestamp()
-         client.channels.cache.get("944434855452749844").send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
+         client.channels.cache.get("996893224570454058").send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
 });
 
 // Interaction Stuff
@@ -478,7 +511,6 @@ if(interaction.customId === 'unsubscribe-button') {
 })
 
 client.on('interactionCreate', async interaction => {
-  console.log(process.memoryUsage().heapUsed / 1024 / 1024)
 
 
 // BOT SUSPENSIONS TO SLACK
