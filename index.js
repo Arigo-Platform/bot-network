@@ -10,7 +10,7 @@ const port = 4000
 const axios = require('axios');
 const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
 const { execSync } = require('child_process');
-console.log("This thing is working")
+console.log("OH MY GOD")
 // Database
 const {Firestore} = require('@google-cloud/firestore');
         const firestore = new Firestore();
