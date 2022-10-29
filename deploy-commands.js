@@ -19,7 +19,7 @@ const {Firestore} = require('@google-cloud/firestore');
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 var enabled = [
-	'help', '8ball'
+	'help'
 ]
 // Moderation Module
 const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('moderation');
@@ -60,7 +60,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push('calculator', 'emojify', 'ping', 'say', 'userinfo')
+	  enabled.push('calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
@@ -68,6 +68,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'ping',
 		'say',
 		'userinfo',
+		'8ball'
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))

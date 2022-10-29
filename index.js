@@ -1,16 +1,16 @@
 const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials } = require('discord.js');
-// const token = process.env["token"]
-// const guildId = process.env["guildId"]
-const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
-const guildId = '864016187107966996'
+const token = process.env["token"]
+const guildId = process.env["guildId"]
+// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
+// const guildId = '864016187107966996'
 const express = require('express')
 const app = express()
 const port = 4000
 const axios = require('axios');
 const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
 const { execSync } = require('child_process');
-
+console.log("This thing is working")
 // Database
 const {Firestore} = require('@google-cloud/firestore');
         const firestore = new Firestore();
