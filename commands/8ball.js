@@ -1,5 +1,5 @@
-const { Client, Collection, Intents } = require('discord.js');
-module.exports = {
+const { SlashCommandBuilder } = require('discord.js');
+const { ButtonStyle, ActionRowBuilder, Client, Collection, Intents } = require('discord.js');module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('8ball')
 		.setDescription('Send something as the bot.')
