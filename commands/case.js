@@ -1,5 +1,5 @@
-  const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Client, Collection, Intents } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const { ButtonStyle, ActionRowBuilder, Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('case')
@@ -9,20 +9,19 @@ module.exports = {
 			.setDescription('Enter the Case ID')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db) {
+	async execute(interaction, embed, db, events) {
 // Basic needs 🤖
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
         const moment = require('moment');
     const wait = require('node:timers/promises').setTimeout;
 
     
 // Defining basic varvs
         const caseId = interaction.options.getNumber('caseid');
-        const { MessageEmbed } = require('discord.js');
+        const { EmbedBuilder } = require('discord.js');
         const serverId = interaction.member.guild.id
     const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('modId');
 const doc = await cityRef.get();
@@ -43,12 +42,12 @@ let logChannel = interaction.guild.channels.cache.get( doc3.data().id)
 
       // Button
 
-      const row = new MessageActionRow()
+      const row = new ActionRowBuilder()
 			.addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('delete')
 					.setLabel('Remove Case')
-					.setStyle('DANGER')
+					.setStyle(ButtonStyle.Danger)
         	.setEmoji('❌'),
 			)
 
@@ -82,19 +81,19 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
 collector.on('collect', async i => {
 	if (i.customId === 'delete') {
     // Verification Buttons
-    const verify = new MessageActionRow()
+    const verify = new ActionRowBuilder()
         .addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('deny')
 					.setLabel('Cancel')
-					.setStyle('SUCCESS')
+					.setStyle(ButtonStyle.Success)
 			
         )
 			.addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('approve')
 					.setLabel('Remove Case')
-					.setStyle('DANGER')
+					.setStyle(ButtonStyle.Danger)
 )
 
 	
@@ -102,8 +101,8 @@ collector.on('collect', async i => {
 			
     embed.setTitle("⚠️ Caution")
     embed.setDescription("Are you sure you'd like to delete that case? This action is irreversible.")
-    embed.setColor("RED")
-    embed.fields = [];
+    embed.setColor("Red")
+    embed.setFields([]);
     await i.deferReply({ ephemeral: true });
 		await wait(1000)
     i.editReply({ embeds: [embed], ephemeral: true, components: [verify] })
@@ -113,7 +112,7 @@ collector.on('collect', async i => {
   if (i.customId === 'deny') {
     embed.setTitle("👍 Command Canceled")
     embed.setDescription("Phew. I didn't delete the case, we're all good!")
-    embed.setColor("YELLOW")
+    embed.setColor("Yellow")
     await i.deferReply({ ephemeral: true });
 		await wait(1000)
     i.editReply({ embeds: [embed], ephemeral: true })
@@ -124,7 +123,7 @@ collector.on('collect', async i => {
 
     embed.setTitle("🎉 Case Deleted")
     embed.setDescription("Case ``" + caseId + "`` has been deleted.")
-    embed.setColor("GREEN")
+    embed.setColor("Green")
     await i.deferReply({ ephemeral: true });
 		await wait(1000)
     i.editReply({ embeds: [embed], ephemeral: true })
@@ -142,7 +141,10 @@ collector.on('collect', async i => {
 
       { name: 'Case ID ✍️', value: `${caseId}`, inline: true })
     logChannel.send({ embeds: [embed] })
+     // Log in Datadog
+     events.info('DeleteCase', { caseId: `${caseId}`, type: `${data.type}`, punisher: `${data.user}`, offender: `${data.offender}`, reason: `${data.reason}` })
     cityReff.delete()
+   
 
     }
     
@@ -155,7 +157,7 @@ collector.on('collect', async i => {
     } else {
       embed.setTitle("😞 Case Not Found")
       embed.setDescription("I was unable find a case with the ID of ``" + caseId + "``.")
-      embed.setColor("RED")
+      embed.setColor("Red")
       interaction.reply({ embeds: [embed], ephemeral: true})
     }
 
@@ -164,14 +166,14 @@ collector.on('collect', async i => {
    // They don't have the required role to run the command
     embed.setTitle("😞 Insufficient Permissions")
     embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-   embed.setColor("RED")
+   embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
    }
    
    } else {
   embed.setTitle("⚠️ Logging Channel Not Set ")
   embed.setDescription("A logging channel is not set via the dashboard and the server ban has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
-  embed.setColor("RED")
+  embed.setColor("Red")
   interaction.reply({ embeds: [embed], ephemeral: true })
 
 

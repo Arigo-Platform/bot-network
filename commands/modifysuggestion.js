@@ -1,5 +1,5 @@
- const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Client, Collection, Intents } = require('discord.js');
+ const { SlashCommandBuilder } = require('discord.js');
+const { ButtonStyle, ActionRowBuilder, Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 .setName('modifysuggestion')
@@ -8,10 +8,12 @@ module.exports = {
 		option.setName('status')
 			.setDescription('Set the status of the suggestion')
 			.setRequired(true)
-			.addChoice('Approve', 'approve')
-			.addChoice('Deny', 'deny')
-			.addChoice('Consider', 'consider')
-      .addChoice('Delete', 'delete'))
+      .addChoices(
+				{ name: 'Approve', value: 'approve' },
+				{ name: 'Deny', value: 'deny' },
+				{ name: 'Consider', value: 'consider' },
+        { name: 'Delete', value: 'delete' },
+			))
   .addNumberOption(option =>
 		option.setName('id')
 			.setDescription('The suggestion ID you wish to consider')
@@ -23,12 +25,11 @@ module.exports = {
   	async execute(interaction, embed, db) {
 
       // Basic needs 🤖
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
         const serverId = interaction.member.guild.id
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
         const moment = require('moment');
         const type = interaction.options.getString('status');
        const reason = interaction.options.getString('reason');
@@ -60,15 +61,15 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
-  const { MessageEmbed } = require('discord.js');
-  const sLink = new MessageActionRow()  
+  const { EmbedBuilder } = require('discord.js');
+  const sLink = new ActionRowBuilder()  
           .addComponents(
-				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+				new ButtonBuilder()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
 					.setLabel('View Suggestion')
-					.setStyle('LINK')
+					.setStyle(ButtonStyle.Link)
         )   
-  const todmembed = new MessageEmbed()
-    todmembed.setColor(interaction.guild.me.displayColor)
+  const todmembed = new EmbedBuilder()
+    todmembed.setColor(interaction.guild.members.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
     todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
       authorInfo.send({ embeds: [todmembed], components: [sLink] 
@@ -86,18 +87,18 @@ embed.setFooter({
 text: `ID: ${suggestionId} | Powered by Arigo Platform`,
 iconURL: interaction.client.user.displayAvatarURL()
 })
-embed.setColor("GREEN")
+embed.setColor("Green")
 message.edit({ embeds: [embed] })
     }) 
 // Reply to interaction (success):
 embed.setTitle("Suggestion approved! 🎉")
-embed.setColor("GREEN")
+embed.setColor("Green")
 interaction.reply({ embeds: [embed], ephemeral: true }) 
     } else {
 // The Suggestion Doesn't Exist:
 embed.setTitle("😞 Suggestion Not Found")
 embed.setDescription("I was unable find a suggestion with the ID of ``" + suggestionId + "``.")
-embed.setColor("RED")
+embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
     }
 
@@ -105,7 +106,7 @@ interaction.reply({ embeds: [embed], ephemeral: true })
    // User Doesn't Have Permissions:
   embed.setTitle("😞 Insufficient Permissions")
   embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-  embed.setColor("RED")
+  embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
  }
 } else if(type === 'deny') {
@@ -134,15 +135,15 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
-    const { MessageEmbed } = require('discord.js');
-    const sLink = new MessageActionRow()  
+    const { EmbedBuilder } = require('discord.js');
+    const sLink = new ActionRowBuilder()  
           .addComponents(
-				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+				new ButtonBuilder()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
 					.setLabel('View Suggestion')
-					.setStyle('LINK')
+					.setStyle(ButtonStyle.Link)
         )   
-  const todmembed = new MessageEmbed()
-    todmembed.setColor(interaction.guild.me.displayColor)
+  const todmembed = new EmbedBuilder()
+    todmembed.setColor(interaction.guild.members.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
     todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
       authorInfo.send({ embeds: [todmembed], components: [sLink] 
@@ -160,18 +161,18 @@ embed.setFooter({
 text: `ID: ${suggestionId} | Powered by Arigo Platform`,
 iconURL: interaction.client.user.displayAvatarURL()
 })
-embed.setColor("RED")
+embed.setColor("Red")
 message.edit({ embeds: [embed] })
     }) 
 // Reply to interaction (success):
 embed.setTitle("Suggestion denied! 🎉")
-embed.setColor("GREEN")
+embed.setColor("Green")
 interaction.reply({ embeds: [embed], ephemeral: true }) 
     } else {
 // The Suggestion Doesn't Exist:
 embed.setTitle("😞 Suggestion Not Found")
 embed.setDescription("I was unable find a suggestion with the ID of ``" + suggestionId + "``.")
-embed.setColor("RED")
+embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
     }
 
@@ -179,7 +180,7 @@ interaction.reply({ embeds: [embed], ephemeral: true })
    // User Doesn't Have Permissions:
   embed.setTitle("😞 Insufficient Permissions")
   embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-  embed.setColor("RED")
+  embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
  }
 } if(type === 'consider') {
@@ -208,15 +209,15 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
-  const { MessageEmbed } = require('discord.js');
-  const sLink = new MessageActionRow()  
+  const { EmbedBuilder } = require('discord.js');
+  const sLink = new ActionRowBuilder()  
           .addComponents(
-				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+				new ButtonBuilder()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
 					.setLabel('View Suggestion')
-					.setStyle('LINK')
+					.setStyle(ButtonStyle.Link)
         )   
-  const todmembed = new MessageEmbed()
-    todmembed.setColor(interaction.guild.me.displayColor)
+  const todmembed = new EmbedBuilder()
+    todmembed.setColor(interaction.guild.members.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
     todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
       authorInfo.send({ embeds: [todmembed], components: [sLink]
@@ -234,18 +235,18 @@ embed.setFooter({
 text: `ID: ${suggestionId} | Powered by Arigo Platform`,
 iconURL: interaction.client.user.displayAvatarURL()
 })
-embed.setColor("YELLOW")
+embed.setColor("Yellow")
 message.edit({ embeds: [embed] })
     }) 
 // Reply to interaction (success):
 embed.setTitle("Suggestion considered! 🎉")
-embed.setColor("GREEN")
+embed.setColor("Green")
 interaction.reply({ embeds: [embed], ephemeral: true }) 
     } else {
 // The Suggestion Doesn't Exist:
 embed.setTitle("😞 Suggestion Not Found")
 embed.setDescription("I was unable find a suggestion with the ID of ``" + suggestionId + "``.")
-embed.setColor("RED")
+embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
     }
 
@@ -253,7 +254,7 @@ interaction.reply({ embeds: [embed], ephemeral: true })
    // User Doesn't Have Permissions:
   embed.setTitle("😞 Insufficient Permissions")
   embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-  embed.setColor("RED")
+  embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
  }
 } if(type === 'delete') {
@@ -282,15 +283,15 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
-const { MessageEmbed } = require('discord.js');
-const sLink = new MessageActionRow()  
+const { EmbedBuilder } = require('discord.js');
+const sLink = new ActionRowBuilder()  
           .addComponents(
-				new MessageButton()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
+				new ButtonBuilder()	.setURL(`https://discord.com/channels/${serverId}/${channelid.data().id}/${message.id}`)
 					.setLabel('View Suggestion')
-					.setStyle('LINK')
+					.setStyle(ButtonStyle.Link)
         )   
-  const todmembed = new MessageEmbed()
-    todmembed.setColor(interaction.guild.me.displayColor)
+  const todmembed = new EmbedBuilder()
+    todmembed.setColor(interaction.guild.members.me.displayColor)
     todmembed.setTitle("💡 Suggestion Status Update")
     todmembed.setDescription(`Hello, <@${authorInfo.user.id}>! Your suggestion in ` + "``" + interaction.member.guild.name + "`` has been reviewed by <@" + interaction.user.id + ">.")
       authorInfo.send({ embeds: [todmembed], components: [sLink] 
@@ -313,13 +314,13 @@ message.edit({ embeds: [embed] })
     }) 
 // Reply to interaction (success):
 embed.setTitle("Suggestion deleted! 🎉")
-embed.setColor("GREEN")
+embed.setColor("Green")
 interaction.reply({ embeds: [embed], ephemeral: true }) 
     } else {
 // The Suggestion Doesn't Exist:
 embed.setTitle("😞 Suggestion Not Found")
 embed.setDescription("I was unable find a suggestion with the ID of ``" + suggestionId + "``.")
-embed.setColor("RED")
+embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
     }
 
@@ -327,7 +328,7 @@ interaction.reply({ embeds: [embed], ephemeral: true })
    // User Doesn't Have Permissions:
   embed.setTitle("😞 Insufficient Permissions")
   embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-  embed.setColor("RED")
+  embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
  }
 }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 const { string } = require('mathjs');
 module.exports = {

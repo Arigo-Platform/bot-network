@@ -1,4 +1,4 @@
- const { SlashCommandBuilder } = require('@discordjs/builders');
+ const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 const { zeros } = require('mathjs');
 module.exports = {
@@ -28,14 +28,14 @@ if(duration == '0') {
   channel.setRateLimitPerUser('0', `The channel slowmode was removed by ${username} (${userId}).`)
   embed.setTitle("🎉 Slowmode Removed")
   embed.setDescription(`I've successfully disabled slowmode for this channel.`)
-  embed.setColor("GREEN")
+  embed.setColor("Green")
   return interaction.reply({ embeds: [embed] })
   }
   // Invalid Amount
  if(isNaN(duration)) {
    embed.setTitle("⚠️ Command Failure")
    embed.setDescription("Please enter a valid time for slowmode, such as `/slowmode 3`")
-   embed.setColor("RED")
+   embed.setColor("Red")
    return interaction.reply({ embeds: [embed] })
  }
  
@@ -43,14 +43,14 @@ if(duration == '0') {
 channel.setRateLimitPerUser(duration, `This slowmode was issued by ${username} (${userId}).`)
 embed.setTitle("🎉 Slowmode Set")
 embed.setDescription(`I've set a slowmode in this channel for **` + "`" + duration + "`** second(s). Use the `/slowmode 0` to turn off slowmode.")
-embed.setColor("GREEN")
+embed.setColor("Green")
 interaction.reply({ embeds: [embed] })
       
  } else {
   // No Permission
 embed.setTitle("😞 Insufficient Permissions")
 embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-embed.setColor("RED")
+embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
        }
 

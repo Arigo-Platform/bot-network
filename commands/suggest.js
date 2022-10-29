@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,12 +12,11 @@ module.exports = {
 
 
 // Basic needs 🤖
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
         const serverId = interaction.member.guild.id
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
         const moment = require('moment');
 
     // Check for Suggestion Channel ID
@@ -40,7 +39,7 @@ const suggestion = interaction.options.getString('suggestion');
     // Post Suggestion
            
             
-    embed.setColor(interaction.guild.me.displayColor)
+    embed.setColor(interaction.guild.members.me.displayColor)
     embed.setTitle(`New Suggestion from ${interaction.member.user.username}`)
     embed.setDescription(suggestion)
     embed.setFooter({
@@ -75,7 +74,7 @@ iconURL: interaction.client.user.displayAvatarURL()
 
   embed.setTitle("Suggestion posted! 🎉")
   embed.setDescription(`Your suggestion has been posted to <#${sid.data().id}>, thank you for your contributions.`)
-  embed.setColor("GREEN")
+  embed.setColor("Green")
 interaction.reply({ embeds: [embed] })
                 
 
@@ -83,7 +82,7 @@ interaction.reply({ embeds: [embed] })
 } else {
                                           embed.setTitle("⚠️ Suggestion Channel Not Set ")
 embed.setDescription("A suggestion channel is not set via the dashboard and the command was unable to be run. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Suggestion Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
-embed.setColor("RED")
+embed.setColor("Red")
   interaction.reply({ embeds: [embed], ephemeral: true })
 }
 }

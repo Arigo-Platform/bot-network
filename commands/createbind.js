@@ -1,4 +1,4 @@
-  const { SlashCommandBuilder } = require('@discordjs/builders');
+  const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,10 +16,9 @@ module.exports = {
 	async execute(interaction, embed, db) {
 
     // 🤖 - Basic utilities
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const userId = interaction.member.user.id
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-        const { MessageEmbed } = require('discord.js');
+        const { EmbedBuilder } = require('discord.js');
         const caseId = Math.floor(Math.random()*90000) + 10000;
         const serverId = interaction.member.guild.id
         const noblox = require("noblox.js")
@@ -43,7 +42,7 @@ module.exports = {
        } catch {
       embed.setTitle("⚠️ Invalid Role ID")
       embed.setDescription("The provided Roblox Role ID, ``" + roleId + "``, is invalid.")
-      embed.setColor("RED")
+      embed.setColor("Red")
       return interaction.reply({ embeds: [embed], ephemeral: true })
        }
   // 💻 - All vars are valid, add bind to database
@@ -57,14 +56,14 @@ module.exports = {
   // ✅ Send Success Command
         embed.setTitle("🎉 Success!")  
         embed.setDescription("You've binded the Role ID ``" + roleId + "`` (``" + groupId + "``) to the <@&" + discordRole.id + "> role.\n\nThis bind will be put into **immediate** effect and will replace any duplicate old bind.")
-        embed.setColor("GREEN")
+        embed.setColor("Green")
         interaction.reply({ embeds: [embed] })
        
        } else {  
   // 🚫 - They don't have the required role to run the command
           embed.setTitle("😞 Insufficient Permissions")
           embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-         embed.setColor("RED")
+         embed.setColor("Red")
          interaction.reply({ embeds: [embed], ephemeral: true })
   
   }

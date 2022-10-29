@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,11 +16,10 @@ module.exports = {
     const threatSlack = '1';
     // Basic Vars
 
-    const { MessageActionRow, MessageButton } = require('discord.js');
+    const { MessageActionRow, ButtonBuilder } = require('discord.js');
     const username = interaction.member.user.username
     const userId = interaction.member.user.id
     let user = interaction.guild.members.cache.get(userId)
-    const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
     const serverId = interaction.member.guild.id
     // Check For Permission
     const supportAuth = [
@@ -74,7 +73,7 @@ module.exports = {
       // Doesn't Have Permission
     embed.setTitle("😞 Insufficient Permissions")
     embed.setDescription("You don't have permissions to run this command. Please contact the server owner if you believe this is a mistake.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-   embed.setColor("RED")
+   embed.setColor("Red")
    interaction.reply({ embeds: [embed], ephemeral: true })
 
           }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,18 +13,17 @@ module.exports = {
 			.setDescription('The reason for the punishment')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db) {
+	async execute(interaction, embed, db, events) {
 // Basic needs 🤖
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
         const moment = require('moment');
 // Defining basic varvs
         const offender = interaction.options.getUser('offender');
         const reason = interaction.options.getString('reason')
-        const { MessageEmbed } = require('discord.js');
+        const { EmbedBuilder } = require('discord.js');
         const caseId = Math.floor(Math.random()*90000) + 10000;
         const serverId = interaction.member.guild.id
 
@@ -51,10 +50,12 @@ const doc2 = await cityReff.get();
     type: "Warn"
   }
   const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
+   // Log in Datadog
+   events.info('Warn', { punisher: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
 // Post success message
   embed.setTitle("🎉 Success")
      embed.setDescription(`The server warn has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.`)
-     embed.setColor("GREEN")
+     embed.setColor("Green")
     embed.addFields(
       { name: 'Reason', value: `${reason}` },
       { name: 'Case ID', value: `${caseId}` },
@@ -62,8 +63,8 @@ const doc2 = await cityReff.get();
     interaction.reply({ embeds: [embed] })
   
 // Attempt to DM offender
-  const { MessageEmbed } = require('discord.js');
-    const embedtoSend = new MessageEmbed()
+  const { EmbedBuilder } = require('discord.js');
+    const embedtoSend = new EmbedBuilder()
      embedtoSend.setAuthor({
   name: interaction.member.user.username,
   iconURL: interaction.member.user.avatarURL()
@@ -72,7 +73,7 @@ const doc2 = await cityReff.get();
   text: "Powered by Arigo Platform",
   iconURL: interaction.client.user.displayAvatarURL()
   }),
-     embedtoSend.setColor(interaction.guild.me.displayColor)
+     embedtoSend.setColor(interaction.guild.members.me.displayColor)
      embedtoSend.setTimestamp()
      embedtoSend.setTitle("🔨 Server Warn")
      embedtoSend.setDescription("You have been warned in the server ``" + interaction.member.guild.name + "``" + ` by <@${userId}> (${userId}), please remember that Arigo Community strives to provide community-safety.\n\nYou can locate the Arigo Community Guidelines [here](https://corp.arigoapp.com/policy/community-guidelines).`)
@@ -87,13 +88,13 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
   console.log(error)
 	embed.setTitle("🎉 Success")
   embed.setDescription(`The server warn has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.\n\n` + "I was unable to DM the user due to their privacy settings on Discord. The warning **has** still been issued & logged.")
-  embed.setColor("YELLOW")
-  embed.fields = [];
+  embed.setColor("Yellow")
+  embed.setFields([]);;
   interaction.editReply({ embeds: [embed] })
 });     
     
     // Log to log channel
-embed.fields = []
+embed.setFields([]);
 embed.setTitle("📜 Warning Issued")
      embed.setDescription(`<@${offender.id}> (${offender.id}) has been warned in ` + "``" + interaction.member.guild.name + "``. You can find the infraction information below.")
      embed.addFields(
@@ -101,14 +102,14 @@ embed.setTitle("📜 Warning Issued")
       { name: 'Case ID', value: `${caseId}`, inline: true },
       { name: 'Staff Member', value: `<@${userId}> (${userId})`, inline: true }
 	)     
-       embed.setColor(interaction.guild.me.displayColor)
+       embed.setColor(interaction.guild.members.me.displayColor)
   logChannel.send({ embeds: [embed] })
 
 
     } else {
      embed.setTitle("😞 Insufficient Permissions")
      embed.setDescription("You don't have permissions to run this command. This command requires the <@&" + doc2.data().id + "> role to get permission.\n\nIf you believe this is incorrect or you have the correct role, please contact your Server Administrator.")
-     embed.setColor("RED")
+     embed.setColor("Red")
        interaction.reply({ embeds: [embed], ephemeral: true })
 
     }
@@ -116,7 +117,7 @@ embed.setTitle("📜 Warning Issued")
   // No Log Channel ID Set 😔
       embed.setTitle("⚠️ Logging Channel Not Set ")
   embed.setDescription("A logging channel is not set via the dashboard and the server warn has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
-  embed.setColor("RED")
+  embed.setColor("Red")
   interaction.reply({ embeds: [embed], ephemeral: true})
 
     }

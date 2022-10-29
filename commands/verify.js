@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Client, Collection, Intents } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const { ActionRowBuilder, Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('verify')
@@ -13,16 +13,16 @@ module.exports = {
         interaction.deferReply()
     function myFunction() {
 // Select Device Buttons
-      const device = new MessageActionRow()
+      const device = new ActionRowBuilder()
         .addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('completed')
 					.setLabel('Code Added')
 					.setStyle('PRIMARY')
           .setEmoji('✅')
        )   
           .addComponents(
-				new MessageButton()	.setURL(`https://roblox.com/users/${robloxId}/profile`)
+				new ButtonBuilder()	.setURL(`https://roblox.com/users/${robloxId}/profile`)
 					.setLabel('Roblox Profile')
 					.setStyle('LINK')
         )   
@@ -59,7 +59,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   if(blurb.includes(emojis)) {
     // Code added
     embed.setTitle(`👋 Welcome to ${interaction.member.guild.name}, ${robloxUsername}`)
-    embed.setColor("GREEN")
+    embed.setColor("Green")
     embed.setDescription(`${robloxUsername}, you've been verified with Arigo Platform so you've been given the <@&${verroleid.data().id}> role!`)
     interaction.editReply({ embeds: [embed], components: [] })
     // Add to database
@@ -90,7 +90,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   } else {
     embed.setTitle("⚠️ Command Failure")
     embed.setDescription("We were unable to locate the code in your Roblox About Me section. Please try again if you believe this is an error.")
-    embed.setColor("RED")
+    embed.setColor("Red")
     interaction.editReply({ embeds: [embed], components: [] })
   }
     // Stop the collector
@@ -102,7 +102,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
     }
 // Basic needs 🤖
     
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const axios = require('axios');
         const noblox = require("noblox.js")
         const wait = require('node:timers/promises').setTimeout;
@@ -110,7 +110,6 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
         const discordId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(discordId)
         const randomEmoji = require('random-happy-emoji')
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
         const serverId = interaction.member.guild.id
         const robloxinputUsername = interaction.options.getString('username')
 // Slack Stuff
@@ -129,7 +128,7 @@ const threatSlack = 'C03DVRER6JG';
     // Invalid Roblox Username
       embed.setTitle("⚠️ Invalid Roblox Username")
       embed.setDescription("The provided username, ``" + robloxinputUsername + "``, isn't a valid Roblox username.")
-      embed.setColor("RED")
+      embed.setColor("Red")
       return interaction.editReply({ embeds: [embed], ephemeral: true })
     }
     // Get Verified Role ID
@@ -166,16 +165,16 @@ const verroleid = await cityReff.get();
       // Attempting to verify with secondary account (proceed)
            let robloxUsername = await noblox.getUsernameFromId(response.data.robloxId)
             // Button Creation
-      const options = new MessageActionRow()
+      const options = new ActionRowBuilder()
         .addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('verify')
 					.setLabel('Verify')
 					.setStyle('PRIMARY')
           .setEmoji('✅')
        )   
       .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
 					.setCustomId('secondary')
 					.setLabel('Verify With Secondary Account')
 					.setStyle('SECONDARY')
@@ -201,16 +200,16 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
       collector.on('collect', async i => {
     if(i.customId === 'secondary') {
 // Select Device Buttons
-      const device = new MessageActionRow()
+      const device = new ActionRowBuilder()
         .addComponents(
-				new MessageButton()
+				new ButtonBuilder()
 					.setCustomId('completed')
 					.setLabel('Code Added')
 					.setStyle('PRIMARY')
           .setEmoji('✅')
        )   
           .addComponents(
-				new MessageButton()	.setURL(`https://roblox.com/users/${robloxId}/profile`)
+				new ButtonBuilder()	.setURL(`https://roblox.com/users/${robloxId}/profile`)
 					.setLabel('Roblox Profile')
 					.setStyle('LINK')
         )   
@@ -250,7 +249,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   if(blurb.includes(emojis)) {
     // Code added
     embed.setTitle(`👋 Welcome to ${interaction.member.guild.name}, ${robloxUsername}`)
-    embed.setColor("GREEN")
+    embed.setColor("Green")
     embed.setDescription(`${robloxUsername}, you've been verified with Arigo Platform so you've been given the <@&${verroleid.data().id}> role!`)
     interaction.editReply({ embeds: [embed], components: [] })
     // Add to database
@@ -286,7 +285,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
   } else {
     embed.setTitle("⚠️ Command Failure")
     embed.setDescription("We were unable to locate the code in your Roblox About Me section. Please try again if you believe this is an error.")
-    embed.setColor("RED")
+    embed.setColor("Red")
     interaction.editReply({ embeds: [embed], components: [] })
   }
     // Stop the collector
@@ -316,7 +315,7 @@ const collector = interaction.channel.createMessageComponentCollector({ filter, 
       }
 embed.setTitle("⏰ Expired Event")
 embed.setDescription(`This verification attempt has expired due to inactivity. Please rerun the command.`)
-embed.setColor("RED")
+embed.setColor("Red")
 
       
     

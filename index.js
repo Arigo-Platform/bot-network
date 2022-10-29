@@ -1,14 +1,15 @@
 const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
-const token = process.env["token"]
-const guildId = process.env["guildId"]
-const { MessageEmbed } = require('discord.js');
+const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials } = require('discord.js');
+// const token = process.env["token"]
+// const guildId = process.env["guildId"]
+const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
+const guildId = '864016187107966996'
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 4000
 const axios = require('axios');
-const { MessageActionRow, MessageButton, Modal, TextInputComponent } = require('discord.js');
-const { ActionRowBuilder, SelectMenuBuilder } = require('discord.js');
+const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
+const { execSync } = require('child_process');
 
 // Database
 const {Firestore} = require('@google-cloud/firestore');
@@ -17,15 +18,36 @@ const {Firestore} = require('@google-cloud/firestore');
           projectId: 'arigo-platform',
           keyFilename: 'key.json',
         });
+  
 
 // Slack info
 const { WebClient } = require('@slack/web-api');
+const { json } = require('body-parser');
 // Read a token from the environment variables
 const Slacktoken = 'xoxb-3230248284195-3280467778368-jjMmdt31WnN2nrj7CaILXXe2'
 // Initialize
 const web = new WebClient(Slacktoken);
 const conversationId = 'C037PJVBAAE';
 const threatSlack = 'C03TPE2MAFP';
+
+// Datadog Events
+const { createLogger, format, transports } = require('winston');
+
+const httpTransportOptions = {
+  host: 'http-intake.logs.datadoghq.com',
+  path: '/api/v2/logs?dd-api-key=1442915acc3362533ed7ffa6cb42fca1&ddsource=nodejs&service=BotNetwork',
+  ssl: true
+};
+
+const events = createLogger({
+  exitOnError: false,
+  format: format.json(),
+  transports: [
+    new transports.Http(httpTransportOptions),
+  ],
+});
+
+module.exports = events;
 
 app.get('/', (req, res) => {
   res.send('Server Not Found - Key Missing')
@@ -39,8 +61,7 @@ app.listen(port, () => {
 
 // Get all the bots here, then forEach through them with the code below (creating a new client, initing commands, etc)
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
-
+const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -50,26 +71,30 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', async () => {
+  // appearanceCheck()
+  // Node Deploy Commands (deploy-commands).js
+  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  console.log(`Output: ${output}`);
   
-  const row = new MessageActionRow()
+  const row = new ActionRowBuilder()
 			.addComponents(
-				new MessageButton()
+				new ButtonBuilder()
         .setCustomId('subscribe-button')
         .setLabel('Subscribe')
-        .setStyle('PRIMARY')
+        .setStyle(ButtonStyle.Primary)
         .setEmoji('📰')
 			)
       .addComponents(
-				new MessageButton()
+				new ButtonBuilder()
         .setCustomId('unsubscribe-button')
         .setLabel('Unsubscribe')
-        .setStyle('DANGER')
+        .setStyle(ButtonStyle.Danger)
 			);
-  const newsletterRow = new MessageActionRow()
+  const newsletterRow = new ActionRowBuilder()
   .addComponents(
-    new MessageButton()
+    new ButtonBuilder()
     .setLabel("Complete Form")
-    .setStyle('LINK')
+    .setStyle(ButtonStyle.Link)
     .setURL('https://forms.gle/4xNicVNPMvvF3K3K9'
     )
   )
@@ -82,7 +107,7 @@ client.once('ready', async () => {
   //     // console.log(tempDoc)
   //     tempDoc.forEach(async user => {
   //     const toDm = await client.users.fetch(`${user.id}`)
-  //     const newsletterembed = new MessageEmbed()
+  //     const newsletterembed = new EmbedBuilder()
   //     newsletterembed.setTitle("Arigo Newsletter #1 - Submit some feedback")
   //     newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening today.\n\nWe're working hard everyday to ensure that we create the best and most diverse platform to help you manage your incredible Discord community. With that being said, your opinion matters greatly to us, so if you have some extra time today, we'd love to hear it.\n\nPlease use the botton below to submit a form directly to Team Arigo so we can ensure Arigo is built with your specifications in mind\n\nYou'll continue hearing from us with the latest and greatest information about Arigo and all the incredible features & events to come.\n\nBest,\nYour friends at Arigo`)
   //     newsletterembed.setColor("#ed1d24")
@@ -99,14 +124,14 @@ client.once('ready', async () => {
   
 
   // const toDm = await client.users.fetch('695167288801886269')
-  // const newsletterembed = new MessageEmbed()
+  // const newsletterembed = new EmbedBuilder()
   // newsletterembed.setTitle("Exclusive Newsletter Post - 50% off your subscription")
   // newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening and we're here to deliver some good news. After manual review of your account and your active subscriptions, we're happy to let you know that you're eligible for 50% off next month for one bot. You can use this promotion on one of your existing bots or on a new bot.\n\nPlease email accounts@arigoapp.com to claim, promotion ends <t:1661022000:R>.\n\nHave a great rest of your Tuesday,\n Your friends at Arigo`)
   // newsletterembed.setColor("#ed1d24")
   // newsletterembed.setImage('https://cdn.discordapp.com/attachments/1007352628365238432/1009204973525016586/unknown.png')
   // // await toDm.send({ embeds: [newsletterembed] })
 
-  const supportEmbed = new MessageEmbed()
+  const supportEmbed = new EmbedBuilder()
   supportEmbed.setTitle("Join the newsletter")
   supportEmbed.setDescription(`Subscribe to Arigo's free newsletter where we'll send you important *personalized* updates and useful tips straight to your Discord inbox.\n\nWe'll never send you something irreverent or spam your direct messages. Reach out to us at community@arigoapp.com with any questions or concerns.`)
   supportEmbed.setColor("#ed1d24")
@@ -153,7 +178,7 @@ client.once('ready', async () => {
   // if(msg.author.id == '695167288801886269'){
   //     if(msg.content.includes(':e0_laugh:' || ':lol:')){
   //       msg.delete()
-  //   const embedkosma = new MessageEmbed()
+  //   const embedkosma = new EmbedBuilder()
   //     embedkosma.setTitle("🎉 Annoying Emoji Filtered")
   //    embedkosma.setDescription(`Internal automated systems have filtered an annoying emoji. Due to this being an automated action, a Case ID will not be assigned and this case will not be logged.`)
   //    embedkosma.setColor("GREEN")
@@ -172,7 +197,7 @@ client.on('messageDelete', async message => {
     // From bot, disregard
   } else {
     if(message.attachments.size > 0) {
-      const deletedmsg = new MessageEmbed()
+      const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
   deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n${message.content}\n\n**Attachment:**\n${message.attachments.first().attachment}`)
   deletedmsg.setFooter({
@@ -184,7 +209,7 @@ deletedmsg.setTimestamp()
 logChannel.send({ embeds: [deletedmsg] })
 } else {
 // No Attachment
-      const deletedmsg = new MessageEmbed()
+      const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
   deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n${message.content}`)
   deletedmsg.setFooter({
@@ -214,7 +239,7 @@ client.on('messageUpdate', async function(oldMessage, newMessage) {
   const cityReff = db.collection('bots').doc(`${guildId}`).collection('settings').doc('messageLogChannel');
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
-  const editedmsg = new MessageEmbed()
+  const editedmsg = new EmbedBuilder()
   editedmsg.setTitle("New Message Edited")
   editedmsg.setDescription(`**User:** <@${newMessage.author.id}> (${newMessage.author.id})\n**Channel:** <#${newMessage.channelId}> (${newMessage.channelId})`)
 editedmsg.addFields(
@@ -313,7 +338,7 @@ client.on('guildMemberAdd', member => {
     '😁'
   ]
   const random = Math.floor(Math.random() * emojis.length);
-       const welcomeembed = new MessageEmbed()
+       const welcomeembed = new EmbedBuilder()
 
      welcomeembed.setTitle("Welcome to Arigo Community! :wave:") 
      welcomeembed.setDescription(`Hey, <@${member.user.id}>! Welcome to Arigo Community, we'll let you get settled in. Until then, feel free to let us know if you need any guidance. Check out our [website](https://arigoapp.com) and [blog](https://medium.com/arigo) to learn more about Arigo Platform and our mission. We hope to see you soon! ${emojis[random]}`)
@@ -363,15 +388,15 @@ client.on('interactionCreate', async interaction => {
         });
 
       // Create button
-      const row = new MessageActionRow()
+      const row = new ActionRowBuilder()
 			.addComponents(
-				new MessageButton()
+				new ButtonBuilder()
         .setLabel('Create account')
-        .setStyle('LINK')
+        .setStyle(ButtonStyle.Link)
         .setURL('https://app.arigoapp.com/create-account')
 			)
       // Create embed
-      const noAccessEmbed = new MessageEmbed()
+      const noAccessEmbed = new EmbedBuilder()
       noAccessEmbed.setFooter({
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
@@ -401,7 +426,7 @@ client.on('interactionCreate', async interaction => {
         channel: threatSlack,
       });
       // Create embed
-      const alreadyExistsEmbed = new MessageEmbed()
+      const alreadyExistsEmbed = new EmbedBuilder()
       alreadyExistsEmbed.setFooter({
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
@@ -431,7 +456,7 @@ client.on('interactionCreate', async interaction => {
       }
       const res = await db.collection("newsletter").doc(`${interaction.user.id}`).set(data)
       // Send notification
-      const successEmbed = new MessageEmbed()
+      const successEmbed = new EmbedBuilder()
       successEmbed.setFooter({
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
@@ -471,7 +496,7 @@ if(interaction.customId === 'unsubscribe-button') {
     // Remove from database
     cityRef.delete()
     // Send embed
-    const deleteSuccessEmbed = new MessageEmbed()
+    const deleteSuccessEmbed = new EmbedBuilder()
     deleteSuccessEmbed.setFooter({
     text: "Designed by Arigo",
     iconURL: interaction.client.user.displayAvatarURL()
@@ -496,7 +521,7 @@ if(interaction.customId === 'unsubscribe-button') {
         channel: threatSlack,
       });
     // Send embed
-    const notSubscribedEmbed = new MessageEmbed()
+    const notSubscribedEmbed = new EmbedBuilder()
     notSubscribedEmbed.setFooter({
     text: "Designed by Arigo",
     iconURL: interaction.client.user.displayAvatarURL()
@@ -518,14 +543,14 @@ client.on('interactionCreate', async interaction => {
   //    var docReftoCheckk = db.collection("bot-suspension").doc(interaction.user.id)
   //    docReftoCheckk.get().then( async (doc2) => {
   //    if(doc2.exists){
-  //    const unauthembed = new MessageEmbed()
+  //    const unauthembed = new EmbedBuilder()
   //    unauthembed.setTitle("⚠️ Unable To Execute Command")
   //    unauthembed.setDescription(`Hello, <@${interaction.member.user.id}>. Your account is currently suspended from Arigo Community, Arigo Platform, and the Arigo Platform Bot Network. We rarely issue these suspensions unless a major policy is violated; in which case we believe the user poses a threat to our network. We encourage you to reach out to us via` + "``moderation@arigoapp.com`` as we're always willing to resolve things with you.\n\n**Moderator Note**\n" + doc2.data().tag)
   //   unauthembed.setFooter({
   // text: "Designed by Arigo",
   // iconURL: client.user.displayAvatarURL()
   // }),
-  //   unauthembed.setColor("RED")
+  //   unauthembed.setColor("Red")
   //   unauthembed.setTimestamp()
   //  return interaction.reply({ embeds: [unauthembed], ephemeral: true })
   //         } else {
@@ -591,41 +616,67 @@ client.on('interactionCreate', async interaction => {
 // });
 
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
   
     embed.setFooter({
   text: "Designed by Arigo",
   iconURL: interaction.client.user.displayAvatarURL()
   }),
-    embed.setColor(interaction.guild.me.displayColor)
+    embed.setColor(interaction.guild.members.me.displayColor)
     embed.setTimestamp()
 	try {
-		await command.execute(interaction, embed, db);
+		await command.execute(interaction, embed, db, events);
 	} catch (error) {
 		console.error('Error', error);
 		return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 // }}) - Bot Suspension
 })
-        
-// Get New Bot Creation DM
 
+// Appearance Check
+     function appearanceCheck() {
+      (async () => {
+        const doc = db.collection('bots').doc(`${guildId}`).collection('settings').doc('appearance');
+        const observer = doc.onSnapshot(async docSnapshot => {
+        const toModify = JSON.stringify(docSnapshot._fieldsProto.visibility.stringValue)
+        const toModify2 = toModify.replace(/['"]+/g, '')
+        const value = parseInt(toModify2)
+        console.log("got", value)
+        if(value === parseInt(1)) {
+          console.log("Output 1")
+          client.user.setStatus('online');
+        } else if(value === parseInt(2)) {
+          console.log("Output 2")
+          client.user.setStatus('dnd');
+        } else if(value === parseInt(3)) {
+          console.log("Output 3")
+          client.user.setStatus('idle');
+        } else if(value === parseInt(4)) {
+          console.log("Output 4")
+          client.user.setStatus('invisible');
+        }
+        }) 
+        console.log(client.presence)
+        })();
+    }
+
+// Get New Bot Creation DM
 app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
   // Get the Server
   const getServer = client.guilds.fetch(req.params.serverId).then(done => {
     // Get the Owner
     const owner = client.users.fetch(done.ownerId).then(owner => {
       // Create Buttons
-      const row2 = new MessageActionRow()
+      const row2 = new ActionRowBuilder()
 			.addComponents(
-				new MessageButton()
+				new ButtonBuilder()
         .setLabel('Visit your Workspace')
-        .setStyle('LINK')
+        .setStyle(ButtonStyle.Link)
         .setURL('https://app.arigoapp.com/workspace/123')
 			)
       
       // Create Embed
-      const toSendToOwnerEmbed = new MessageEmbed()
+      const toSendToOwnerEmbed = new EmbedBuilder()
       toSendToOwnerEmbed.setTitle("Hey itilva8630, it's lovely to meet you! :wave:")
       toSendToOwnerEmbed.setDescription("This notification is to let you know that you've successfully setup your bot in `Arigo Community`, we'd like to welcome you to the Arigo family. We're here to provide you the tools your community needs to operate efficiently and better than ever.\n\nArigo provides industry-leading onboarding tools to get you started using our incredibly diverse platform. Feel free to reach out to your Account Executive, **Ishaan**, via email at ``ishaan@arigoapp.com`` if you need anything.")
       toSendToOwnerEmbed.setColor("#5066c2")

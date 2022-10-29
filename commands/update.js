@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,12 +8,11 @@ module.exports = {
 	async execute(interaction, embed, db) {
     interaction.deferReply()
     // 🤖 - Basic utilities
-        const { MessageActionRow, MessageButton } = require('discord.js');
+        const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
 
-        const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-        const { MessageEmbed } = require('discord.js');
+        const { EmbedBuilder } = require('discord.js');
         const serverId = interaction.member.guild.id
         const noblox = require("noblox.js")
 
@@ -82,7 +81,7 @@ module.exports = {
     // 🚫 - User is NOT verified with Arigo Platform
       embed.setTitle("😞 Command Failure")
       embed.setDescription("You need to be verified with Arigo Platform in order to update your account, please utilize ``/verify`` to do so.")
-     embed.setColor("RED")
+     embed.setColor("Red")
      interaction.reply({ embeds: [embed], ephemeral: true })
   }
   }

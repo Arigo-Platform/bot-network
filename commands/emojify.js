@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -18,7 +18,7 @@ module.exports = {
     } catch {
         embed.setTitle("Uh oh!")
         embed.setDescription("I was unable to capture the emojis for ```" + text + "```.")
-        embed.setColor("RED")
+        embed.setColor("Red")
         return interaction.reply({ embeds: [embed] })
     }
         interaction.reply({ content: emoji.convert(text) })
