@@ -8,7 +8,7 @@ const { ButtonStyle, ActionRowBuilder, Client, Collection, Intents } = require('
 			.setDescription('The message you want to send on behalf of the bot')
 			.setRequired(true)),
   
-  	async execute(interaction, embed, db) {
+  	async execute(interaction, embed, db, events) {
 
         const text = interaction.options.getString('question')
       // Slack info
