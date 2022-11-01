@@ -15,6 +15,6 @@ COPY package.json /usr/src/bot
 RUN npm install
 
 COPY . /usr/src/bot
-
+RUN doppler --version
 # Start the bot.
 CMD ["doppler", "run", "--", "node index.js"]
