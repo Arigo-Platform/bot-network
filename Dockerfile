@@ -17,5 +17,4 @@ RUN npm install
 COPY . /usr/src/bot
 
 # Start the bot.
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["node", "index.js"]
+CMD ["doppler", "run", "--", "node index.js"]
