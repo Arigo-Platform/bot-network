@@ -13,7 +13,8 @@ module.exports = {
 			.setDescription('The reason for the punishment')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db, events) {
+	async execute(interaction, embed, db, events, Sentry) {
+    try {
 // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
@@ -91,7 +92,7 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
     type: "Kick"
   }
    // Log in Datadog
-   events.info('Kick', { punisher: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
+   events.info('Kick', { user: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
   const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
      embed.setTitle("📜 Server Kick Issued")
      embed.setDescription(`<@${offender.id}> (${offender.id}) has been kicked from ` + "``" + interaction.member.guild.name + "``. You can find the infraction information below.")
@@ -126,5 +127,10 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
     return interaction.reply({ embeds: [embed], ephemeral: true})
 
 }
+} catch (e) {
+  Sentry.captureException(e);
+  console.error('Error in help command', e)
+}
+
   },
 };

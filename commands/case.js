@@ -9,16 +9,16 @@ module.exports = {
 			.setDescription('Enter the Case ID')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db, events) {
+	async execute(interaction, embed, db, events, Sentry) {
 // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
         let user = interaction.guild.members.cache.get(userId)
         const moment = require('moment');
-    const wait = require('node:timers/promises').setTimeout;
+        const wait = require('node:timers/promises').setTimeout;
 
-    
+    try {
 // Defining basic varvs
         const caseId = interaction.options.getNumber('caseid');
         const { EmbedBuilder } = require('discord.js');
@@ -51,7 +51,7 @@ let logChannel = interaction.guild.channels.cache.get( doc3.data().id)
         	.setEmoji('❌'),
 			)
 
-      
+
       // Embed
     const data = doc1.data()
     embed.setTitle("🔎 Case Information")
@@ -69,6 +69,7 @@ let logChannel = interaction.guild.channels.cache.get( doc3.data().id)
 
 	)
       await interaction.deferReply({ ephemeral: true });
+      events.info('Case', { caseId: `${caseId}`, type: `${data.type}`, user: `${data.user}`, offender: `${data.offender}`, reason: `${data.reason}` })
 		await wait(1000);
     interaction.editReply({ embeds: [embed], ephemeral: true, components: [row] })
 const buttonOptions = ["delete", "approve", "deny" ];
@@ -142,7 +143,7 @@ collector.on('collect', async i => {
       { name: 'Case ID ✍️', value: `${caseId}`, inline: true })
     logChannel.send({ embeds: [embed] })
      // Log in Datadog
-     events.info('DeleteCase', { caseId: `${caseId}`, type: `${data.type}`, punisher: `${data.user}`, offender: `${data.offender}`, reason: `${data.reason}` })
+     events.info('CaseDeleted', { caseId: `${caseId}`, type: `${data.type}`, user: `${data.user}`, offender: `${data.offender}`, reason: `${data.reason}` })
     cityReff.delete()
    
 
@@ -177,6 +178,10 @@ collector.on('collect', async i => {
   interaction.reply({ embeds: [embed], ephemeral: true })
 
 
+}
+} catch (e) {
+  Sentry.captureException(e);
+  console.error('Error in case command', e)
 }
   },
 };

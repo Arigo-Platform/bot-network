@@ -17,7 +17,8 @@ module.exports = {
 			.setDescription('The duration of timeout')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db, events) {
+	async execute(interaction, embed, db, events, Sentry) {
+    try {
 // Basic needs 🤖
       const ms = require('ms')
 
@@ -106,7 +107,7 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
   }
   const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
    // Log in Datadog
-   events.info('Timeout', { punisher: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}`, duration: `${duration}` });
+   events.info('Timeout', { user: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}`, duration: `${duration}` });
      embed.setTitle("📜 Server Timeout Issued")
      embed.setDescription(`<@${offender.id}> (${offender.id}) has been timed out in ` + "``" + interaction.member.guild.name + "``. You can find the infraction information below.")
      embed.addFields(
@@ -140,7 +141,11 @@ offender.send({ embeds: [embedtoSend] }).then(value => {
         embed.setColor("Red")
   interaction.reply({ embeds: [embed], ephemeral: true })
      }
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error('Error in ping command', e)
 
+    }
 
   },
 }

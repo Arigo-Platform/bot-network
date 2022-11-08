@@ -9,17 +9,17 @@ module.exports = {
 		option.setName('duration')
 			.setDescription('The amount of slowmode you wish to set in seconds')
 			.setRequired(true)),
-  	async execute(interaction, embed, db) {
-
+  	async execute(interaction, embed, db, events, Sentry) {
+      try {
       // Basic Utilities
         const serverId = interaction.member.guild.id
         const durationstring = interaction.options.getString('duration')
         const duration = parseInt(durationstring)
-    const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('modId');
-const doc = await cityRef.get();
-      let channel = interaction.guild.channels.cache.get(interaction.channelId)
-    const username = interaction.member.user.username
-    const userId = interaction.member.user.id
+        const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('modId');
+        const doc = await cityRef.get();
+        let channel = interaction.guild.channels.cache.get(interaction.channelId)
+        const username = interaction.member.user.username
+        const userId = interaction.member.user.id
     
 // Check for permissions
       if(interaction.member.roles.cache.has(doc.data().id) === true) {
@@ -45,7 +45,8 @@ embed.setTitle("🎉 Slowmode Set")
 embed.setDescription(`I've set a slowmode in this channel for **` + "`" + duration + "`** second(s). Use the `/slowmode 0` to turn off slowmode.")
 embed.setColor("Green")
 interaction.reply({ embeds: [embed] })
-      
+events.info('Slowmode', { user: `${userId}`, channelid: `${interaction.channelId}`, duration: `${duration}`, serverId: `${serverId}` });
+
  } else {
   // No Permission
 embed.setTitle("😞 Insufficient Permissions")
@@ -53,6 +54,11 @@ embed.setDescription("You don't have permissions to run this command. This comma
 embed.setColor("Red")
 interaction.reply({ embeds: [embed], ephemeral: true })
        }
+
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error('Error in ping command', e)
+    }
 
     }
 }

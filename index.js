@@ -2,21 +2,51 @@ const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials } = require('discord.js');
 const token = process.env["token"]
 const guildId = process.env["guildId"]
+const clientId = process.env["clientId"]
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
 // const guildId = '864016187107966996'
+// const clientId = '952310761869410455'
 const express = require('express')
 const app = express()
 const port = 4000
 const axios = require('axios');
 const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
 const { execSync } = require('child_process');
-console.log("OH MY GOD")
 // Database
 const {Firestore} = require('@google-cloud/firestore');
         const firestore = new Firestore();
         const db = new Firestore({
           projectId: 'arigo-platform',
           keyFilename: 'key.json',
+        });
+
+        // Sentry Info
+        const Sentry = require("@sentry/node");
+        // or use es6 import statements
+        // import * as Sentry from '@sentry/node';
+        
+        const Tracing = require("@sentry/tracing");
+        // or use es6 import statements
+        // import * as Tracing from '@sentry/tracing';
+        
+        Sentry.init({
+          dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
+        
+          // Set tracesSampleRate to 1.0 to capture 100%
+          // of transactions for performance monitoring.
+          // We recommend adjusting this value in production
+          tracesSampleRate: 1.0,
+        });
+        Sentry.setContext("Bot Information", {
+          guildId: guildId,
+          clientId: clientId,
+        });
+        Sentry.setTag("guildId", guildId);
+        Sentry.setTag("clientId", clientId);
+
+        const transaction = Sentry.startTransaction({
+          op: "bot-network",
+          name: "Arigo Bot Network",
         });
   
 
@@ -71,6 +101,7 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', async () => {
+  console.log("Update successfully pushed")
   // appearanceCheck()
   // Node Deploy Commands (deploy-commands).js
   const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
@@ -625,7 +656,7 @@ client.on('interactionCreate', async interaction => {
     embed.setColor(interaction.guild.members.me.displayColor)
     embed.setTimestamp()
 	try {
-		await command.execute(interaction, embed, db, events);
+		await command.execute(interaction, embed, db, events, Sentry);
 	} catch (error) {
 		console.error('Error', error);
 		return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });

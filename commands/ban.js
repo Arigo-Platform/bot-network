@@ -13,12 +13,14 @@ module.exports = {
 			.setDescription('The reason for the punishment')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db, events) {
+	async execute(interaction, embed, db, events, Sentry) {
+    try {
     interaction.deferReply()
 // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
         const userId = interaction.member.user.id
+        const serverId = interaction.member.guild.id
         let user = interaction.guild.members.cache.get(userId)
         const moment = require('moment');
 // Defining basic varvs
@@ -28,7 +30,6 @@ module.exports = {
         const reason = interaction.options.getString('reason')
         const { EmbedBuilder } = require('discord.js');
         const caseId = Math.floor(Math.random()*90000) + 10000;
-        const serverId = interaction.member.guild.id
     const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('banModId');
 const doc = await cityRef.get();
 
@@ -161,7 +162,7 @@ return
   }
       const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
      // Log in Datadog
-     events.info('Ban', { punisher: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
+     events.info('Ban', { user: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
      embed.setTitle("📜 Server Ban Issued")
      embed.setDescription(`<@${offender.id}> (${offender.id}) has been banned from ` + "``" + interaction.member.guild.name + "``. You can find the infraction information below.")
      embed.addFields(
@@ -188,7 +189,10 @@ return
   embed.setDescription("A logging channel is not set via the dashboard and the server ban has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
   embed.setColor("Red")
   interaction.editReply({ embeds: [embed], ephemeral: true})
-
+}
+} catch (e) {
+  Sentry.captureException(e);
+  console.error('Error in ban command', e)
 }
   },
 };

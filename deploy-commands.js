@@ -25,13 +25,12 @@ var enabled = [
 const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('moderation');
 	const doc = await data.get();
 	if(doc.data().status === 'enabled') {
-	  enabled.push('ban', 'case', 'kick', 'purge', 'slowmode', 'timeout', 'warn')
+	  enabled.push('ban', 'case', 'kick', 'slowmode', 'timeout', 'warn')
 	} else if(doc.data().status === 'disabled') {
 		const toRemove = [
 			'ban',
 			'case',
 			'kick',
-			'purge',
 			'slowmode',
 			'timeout',
 			'warn'
@@ -60,7 +59,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push('calculator', 'emojify', 'ping', 'say', 'userinfo')
+	  enabled.push('calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
@@ -68,6 +67,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'ping',
 		'say',
 		'userinfo',
+		'8ball'
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))

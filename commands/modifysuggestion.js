@@ -22,8 +22,8 @@ module.exports = {
 		option.setName('reason')
 			.setDescription('The reason for considering the suggestion')
 			.setRequired(true)),
-  	async execute(interaction, embed, db) {
-
+  	async execute(interaction, embed, db, events, Sentry) {
+try {
       // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
@@ -60,6 +60,7 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 // Get the author information:
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
+  events.info('ModifySuggestion', { user: `${userId}`, type: 'approve', suggestionId: `${suggestionId}`, serverId: `${serverId}`, reason: `${reason}` });
   // DM User
   const { EmbedBuilder } = require('discord.js');
   const sLink = new ActionRowBuilder()  
@@ -134,6 +135,8 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 // Get the author information:
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
+  events.info('ModifySuggestion', { user: `${userId}`, type: 'deny', suggestionId: `${suggestionId}`, serverId: `${serverId}`, reason: `${reason}` });
+
   // DM User
     const { EmbedBuilder } = require('discord.js');
     const sLink = new ActionRowBuilder()  
@@ -208,6 +211,8 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 // Get the author information:
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
+  events.info('ModifySuggestion', { user: `${userId}`, type: 'consider', suggestionId: `${suggestionId}`, serverId: `${serverId}`, reason: `${reason}` });
+
   // DM User
   const { EmbedBuilder } = require('discord.js');
   const sLink = new ActionRowBuilder()  
@@ -283,6 +288,8 @@ let suggestionchannel = interaction.guild.channels.cache.get(channelid.data().id
 authorInfo = await interaction.guild.members.fetch(result.data().author)
 const msg = suggestionchannel.messages.fetch(result.data().msgId).then(async message => {
   // DM User
+  events.info('ModifySuggestion', { user: `${userId}`, type: 'delete', suggestionId: `${suggestionId}`, serverId: `${serverId}`, reason: `${reason}` });
+
 const { EmbedBuilder } = require('discord.js');
 const sLink = new ActionRowBuilder()  
           .addComponents(
@@ -332,7 +339,11 @@ interaction.reply({ embeds: [embed], ephemeral: true })
    interaction.reply({ embeds: [embed], ephemeral: true })
  }
 }
+} catch (e) {
+  Sentry.captureException(e);
+  console.error('Error in modifysuggestion command', e)
 
+}
 
     }
 }

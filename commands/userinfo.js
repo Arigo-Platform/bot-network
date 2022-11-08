@@ -10,11 +10,13 @@ module.exports = {
                 .setDescription('The user you\'d like to view information on')
                 .setRequired(true)),
   
-	async execute(interaction, embed, db) {
-
+	async execute(interaction, embed, db, events, Sentry) {
+    try {
     // Define the Var
     const user = interaction.user
     var roles = interaction.member._roles.map(olddata => `<@&${olddata}>`)
+    const userId = interaction.member.user.id
+    const serverId = interaction.member.guild.id
 
     embed.setTitle(`User Information for ${user.username}#${user.discriminator}`)
     embed.addFields(
@@ -27,6 +29,11 @@ module.exports = {
 	)
     .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
     interaction.reply({ embeds: [embed ]})
-    
+    events.info('Userinfo', { user: `${userId}`, infoUser: `${user.id}`, serverId: `${serverId}` });
+  } catch (e) {
+    Sentry.captureException(e);
+    console.error('Error in ping command', e)
+
+  }
   }
 }

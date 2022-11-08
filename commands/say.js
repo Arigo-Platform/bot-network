@@ -1,4 +1,6 @@
-   const { SlashCommandBuilder } = require('discord.js');
+   const { CONSOLE_LEVELS } = require('@sentry/utils');
+const { json } = require('body-parser');
+const { SlashCommandBuilder } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -9,7 +11,8 @@ module.exports = {
 			.setDescription('The message you want to send on behalf of the bot')
 			.setRequired(true)),
   
-  	async execute(interaction, embed, db) {
+  	async execute(interaction, embed, db, events, Sentry) {
+      try {
   const serverId = interaction.member.guild.id
   const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('modId');
 const doc = await cityRef.get();
@@ -19,8 +22,9 @@ const doc = await cityRef.get();
     const username = interaction.member.user.username
     const userId = interaction.member.user.id
     console.log(`${username} (${userId}) said: ${text}`)
-  channel.send({ content: text })
+    channel.send({ content: text })
     interaction.reply({ content: "Success!" })
+    events.info('Say', { user: `${userId}`, text: `${text}`, serverId: `${serverId}` });
     interaction.deleteReply()
 
 } else if(interaction.member.roles.cache.has(doc.data().id) === false){
@@ -29,5 +33,8 @@ const doc = await cityRef.get();
    embed.setColor("Red")
    return interaction.reply({ embeds: [embed], ephemeral: true})
 }
-
+} catch (e) {
+   Sentry.captureException(e);
+   console.error('Error in ping command', e)
+ }
 }}

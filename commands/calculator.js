@@ -9,10 +9,12 @@ module.exports = {
 			.setDescription('The equation you want the bot to solve')
 			.setRequired(true)),
   
-  	async execute(interaction, embed, db) {
+  	async execute(interaction, embed, db, events, Sentry) {
         const math = require('mathjs');
         const equation = interaction.options.getString('equation')
-
+        const userId = interaction.member.user.id
+        const serverId = interaction.member.guild.id
+        try {
 // See if it's addition
 if(equation.includes("x")) {
 
@@ -40,6 +42,7 @@ var newArray = myArray.filter(function(f) { return f !== 'x' })
         } catch (e) {
             embed.setTitle("⚠️ Command Failure")
             embed.setDescription("I'm unable to calculate that question, please try again!")
+            events.info('Calculator', { user: `${userId}`, equation: `${equation}`, success: `false`, serverId: `${serverId}`});
             return interaction.reply({ embeds: [embed] })
         }
 // Success
@@ -52,7 +55,12 @@ var newArray = myArray.filter(function(f) { return f !== 'x' })
         { name: 'Answer', value: `${`\`\`\`css\n${resp}\`\`\``}`, inline: true }
         )
        interaction.reply({ embeds: [embed] })
+       events.info('Calculator', { user: `${userId}`, equation: `${equation}`, success: `true`, serverId: `${serverId}`});
 
     }
+} catch (e) {
+    Sentry.captureException(e);
+    console.error('Error in calculator command', e)
+  }
 }
 }

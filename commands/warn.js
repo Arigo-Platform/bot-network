@@ -13,7 +13,8 @@ module.exports = {
 			.setDescription('The reason for the punishment')
 			.setRequired(true)),
   
-	async execute(interaction, embed, db, events) {
+	async execute(interaction, embed, db, events, Sentry) {
+    try {
 // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
@@ -51,7 +52,7 @@ const doc2 = await cityReff.get();
   }
   const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
    // Log in Datadog
-   events.info('Warn', { punisher: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
+   events.info('Warn', { user: `${userId}`, offender: `${offender.id}`, caseId: `${caseId}`, serverId: `${serverId}`, reason: `${reason}` });
 // Post success message
   embed.setTitle("🎉 Success")
      embed.setDescription(`The server warn has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.`)
@@ -123,6 +124,11 @@ embed.setTitle("📜 Warning Issued")
     }
 
                   } quickstart();
+                } catch (e) {
+                  Sentry.captureException(e);
+                  console.error('Error in ping command', e)
+
+                }
 
   },
 };

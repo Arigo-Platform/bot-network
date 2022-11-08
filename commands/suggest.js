@@ -8,9 +8,9 @@ module.exports = {
 		option.setName('suggestion')
 			.setDescription('The suggestion you wish to share')
 			.setRequired(true)),
-	async execute(interaction, embed, db) {
+	async execute(interaction, embed, db, events, Sentry) {
 
-
+try {
 // Basic needs 🤖
         const { MessageActionRow, ButtonBuilder } = require('discord.js');
         const username = interaction.member.user.username
@@ -71,19 +71,24 @@ iconURL: interaction.client.user.displayAvatarURL()
 
 
   // Reply to user
-
   embed.setTitle("Suggestion posted! 🎉")
   embed.setDescription(`Your suggestion has been posted to <#${sid.data().id}>, thank you for your contributions.`)
   embed.setColor("Green")
-interaction.reply({ embeds: [embed] })
+  interaction.reply({ embeds: [embed] })
+  events.info('Suggest', { user: `${userId}`, suggestionId: `${suggestionId}`, suggestion: `${suggestion}`, serverId: `${serverId}` });
+
                 
 
-  // Add suggestion to database
 } else {
-                                          embed.setTitle("⚠️ Suggestion Channel Not Set ")
-embed.setDescription("A suggestion channel is not set via the dashboard and the command was unable to be run. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Suggestion Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
-embed.setColor("Red")
+    embed.setTitle("⚠️ Suggestion Channel Not Set ")
+    embed.setDescription("A suggestion channel is not set via the dashboard and the command was unable to be run. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Suggestion Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
+    embed.setColor("Red")
   interaction.reply({ embeds: [embed], ephemeral: true })
 }
-}
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error('Error in ping command', e)
+
+    }
+  }
 }
