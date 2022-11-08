@@ -1,5 +1,6 @@
 const fs = require('fs');
-const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials } = require('discord.js');
+const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
+
 const token = process.env["token"]
 const guildId = process.env["guildId"]
 const clientId = process.env["clientId"]
@@ -62,6 +63,7 @@ const threatSlack = 'C03TPE2MAFP';
 
 // Datadog Events
 const { createLogger, format, transports } = require('winston');
+const e = require('express');
 
 const httpTransportOptions = {
   host: 'http-intake.logs.datadoghq.com',
@@ -91,7 +93,7 @@ app.listen(port, () => {
 
 // Get all the bots here, then forEach through them with the code below (creating a new client, initing commands, etc)
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent], partials: [Partials.Channel, Partials.Message] });
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -219,18 +221,22 @@ client.once('ready', async () => {
 
 })
 
+
 // Deleted Message
-client.on('messageDelete', async message => {
+client.on(Events.MessageDelete, async message => {
   const cityReff = db.collection('bots').doc(`${guildId}`).collection('settings').doc('messageLogChannel');
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
-  if(message.author.bot == true) {
+  console.log(message)
+  console.log(message.author)
+
+if(message.author.bot == true) {
     // From bot, disregard
   } else {
     if(message.attachments.size > 0) {
       const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
-  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n${message.content}\n\n**Attachment:**\n${message.attachments.first().attachment}`)
+  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}\n\n**Attachment:**\n${message.attachments.first().attachment}`)
   deletedmsg.setFooter({
 text: "Designed by Arigo",
 iconURL: "https://cdn.arigoapp.com/logo"
@@ -242,7 +248,7 @@ logChannel.send({ embeds: [deletedmsg] })
 // No Attachment
       const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
-  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n${message.content}`)
+  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}`)
   deletedmsg.setFooter({
 text: "Designed by Arigo",
 iconURL: "https://cdn.arigoapp.com/logo"
@@ -251,12 +257,12 @@ deletedmsg.setColor("#ed1d24")
 deletedmsg.setTimestamp()
 logChannel.send({ embeds: [deletedmsg] }) 
   }
-    }
+}
 });
 
 // Edited Message
 
-client.on('messageUpdate', async function(oldMessage, newMessage) {  
+client.on(Events.MessageUpdate, async function(oldMessage, newMessage) {  
   
  if(newMessage.author.bot == true) {
    // From bot, disregard
