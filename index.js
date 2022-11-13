@@ -4,9 +4,11 @@ const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, Gatewa
 const token = process.env["token"]
 const guildId = process.env["guildId"]
 const clientId = process.env["clientId"]
+const environment = 'production'
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
 // const guildId = '864016187107966996'
 // const clientId = '952310761869410455'
+// const environment = 'development'
 const express = require('express')
 const app = express()
 const port = 4000
@@ -32,7 +34,7 @@ const {Firestore} = require('@google-cloud/firestore');
         
         Sentry.init({
           dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
-          environment: "development",
+          environment: environment,
           tracesSampleRate: 1.0,
           // Set tracesSampleRate to 1.0 to capture 100%
           // of transactions for performance monitoring.
