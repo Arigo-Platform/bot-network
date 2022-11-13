@@ -81,7 +81,7 @@ iconURL: interaction.client.user.displayAvatarURL()
   }).catch(error => {  
   embed.setFields([]);;
   embed.setTitle("😞 Unable to Notify")
-  embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been kicked.`)
+  embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been banned.`)
   embed.setColor("Red")
   interaction.followUp({ embeds: [embed], ephemeral: true })
  });   

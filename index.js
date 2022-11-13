@@ -32,11 +32,11 @@ const {Firestore} = require('@google-cloud/firestore');
         
         Sentry.init({
           dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
-        
+          environment: "development",
+          tracesSampleRate: 1.0,
           // Set tracesSampleRate to 1.0 to capture 100%
           // of transactions for performance monitoring.
           // We recommend adjusting this value in production
-          tracesSampleRate: 1.0,
         });
         Sentry.setContext("Bot Information", {
           guildId: guildId,
@@ -103,11 +103,10 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', async () => {
-  console.log("Update successfully pushed")
   // appearanceCheck()
   // Node Deploy Commands (deploy-commands).js
-  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
-  console.log(`Output: ${output}`);
+  // const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  // console.log(`Output: ${output}`);
   
   const row = new ActionRowBuilder()
 			.addComponents(
@@ -214,7 +213,7 @@ client.once('ready', async () => {
   //   const embedkosma = new EmbedBuilder()
   //     embedkosma.setTitle("🎉 Annoying Emoji Filtered")
   //    embedkosma.setDescription(`Internal automated systems have filtered an annoying emoji. Due to this being an automated action, a Case ID will not be assigned and this case will not be logged.`)
-  //    embedkosma.setColor("GREEN")
+  //    embedkosma.setColor("Green")
   //   msg.channel.send({ embeds: [embedkosma] })
   // }
   // }
@@ -227,8 +226,6 @@ client.on(Events.MessageDelete, async message => {
   const cityReff = db.collection('bots').doc(`${guildId}`).collection('settings').doc('messageLogChannel');
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
-  console.log(message)
-  console.log(message.author)
 
 if(message.author.bot == true) {
     // From bot, disregard
@@ -279,7 +276,8 @@ client.on(Events.MessageUpdate, async function(oldMessage, newMessage) {
   const editedmsg = new EmbedBuilder()
   editedmsg.setTitle("New Message Edited")
   editedmsg.setDescription(`**User:** <@${newMessage.author.id}> (${newMessage.author.id})\n**Channel:** <#${newMessage.channelId}> (${newMessage.channelId})`)
-editedmsg.addFields(
+
+  editedmsg.addFields(
   { name: 'Old Message', value: `${oldMessage.content}`, inline: true },
   { name: 'New Message', value: `${newMessage.content}`, inline: true },
 	)
@@ -438,7 +436,7 @@ client.on('interactionCreate', async interaction => {
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
       }),
-      noAccessEmbed.setColor('RED')
+      noAccessEmbed.setColor('Red')
       noAccessEmbed.setTimestamp() 
       noAccessEmbed.setTitle("<:x_:957002602921492570> Almost there...")
       noAccessEmbed.setDescription("You're almost there! In order to setup newsletter notifications, you'll need to setup an account with Arigo.\n\nDon't worry, creating an account takes seconds.")
@@ -468,7 +466,7 @@ client.on('interactionCreate', async interaction => {
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
       }),
-      alreadyExistsEmbed.setColor('RED')
+      alreadyExistsEmbed.setColor('Red')
       alreadyExistsEmbed.setTimestamp() 
       alreadyExistsEmbed.setTitle("<:x_:957002602921492570> Woah")
       alreadyExistsEmbed.setDescription("You're already subscribed to our waitlist, nothing else to worry about!")
@@ -498,7 +496,7 @@ client.on('interactionCreate', async interaction => {
       text: "Designed by Arigo",
       iconURL: interaction.client.user.displayAvatarURL()
       }),
-      successEmbed.setColor('GREEN')
+      successEmbed.setColor('Green')
       successEmbed.setTimestamp() 
       successEmbed.setTitle("<:check:957002603252830208> You're subscribed")
       successEmbed.setDescription(`You'll get notifications straight to your Discord inbox - just make sure your privacy settings allow direct messages from server members.\n\nYou can unsubscribe at anytime using the ` + "`Unsubscribe` button above.")
@@ -538,7 +536,7 @@ if(interaction.customId === 'unsubscribe-button') {
     text: "Designed by Arigo",
     iconURL: interaction.client.user.displayAvatarURL()
     }),
-    deleteSuccessEmbed.setColor('GREEN')
+    deleteSuccessEmbed.setColor('Green')
     deleteSuccessEmbed.setTimestamp() 
     deleteSuccessEmbed.setTitle("<:check:957002603252830208> You're unsubscribed")
     deleteSuccessEmbed.setDescription("You won't get anymore newsletter notifications from us in the future, feel free to resubscribe at anytime.")
@@ -563,7 +561,7 @@ if(interaction.customId === 'unsubscribe-button') {
     text: "Designed by Arigo",
     iconURL: interaction.client.user.displayAvatarURL()
     }),
-    notSubscribedEmbed.setColor('RED')
+    notSubscribedEmbed.setColor('Red')
     notSubscribedEmbed.setTimestamp() 
     notSubscribedEmbed.setTitle("<:x_:957002602921492570> Uh oh")
     notSubscribedEmbed.setDescription("You're not subscribed to our newsletter so we were unable to unsubscribe you.")
