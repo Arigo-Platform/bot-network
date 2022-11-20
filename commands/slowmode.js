@@ -24,13 +24,13 @@ module.exports = {
 // Check for permissions
       if(interaction.member.roles.cache.has(doc.data().id) === true) {
 
-if(duration == '0') {
+if(duration == '0' || 'off') {
   channel.setRateLimitPerUser('0', `The channel slowmode was removed by ${username} (${userId}).`)
   embed.setTitle("🎉 Slowmode Removed")
   embed.setDescription(`I've successfully disabled slowmode for this channel.`)
   embed.setColor("Green")
   return interaction.reply({ embeds: [embed] })
-  }
+  } 
   // Invalid Amount
  if(isNaN(duration)) {
    embed.setTitle("⚠️ Command Failure")
@@ -57,7 +57,7 @@ interaction.reply({ embeds: [embed], ephemeral: true })
 
     } catch (e) {
       Sentry.captureException(e);
-      console.error('Error in ping command', e)
+      console.error('Error in slowmode command', e)
     }
 
     }

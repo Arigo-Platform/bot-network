@@ -1,14 +1,15 @@
 const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
-
-const token = process.env["token"]
-const guildId = process.env["guildId"]
-const clientId = process.env["clientId"]
-const environment = 'production'
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
-// const guildId = '864016187107966996'
-// const clientId = '952310761869410455'
-// const environment = 'development'
+// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
+// const token = process.env["token"]
+// const guildId = process.env["guildId"]
+// const clientId = process.env["clientId"]
+// const environment = 'production'
+// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
+const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
+const guildId = '864016187107966996'
+const clientId = '952310761869410455'
+const environment = 'development'
 const express = require('express')
 const app = express()
 const port = 4000
@@ -66,6 +67,7 @@ const threatSlack = 'C03TPE2MAFP';
 // Datadog Events
 const { createLogger, format, transports } = require('winston');
 const e = require('express');
+const { forEach } = require('mathjs');
 
 const httpTransportOptions = {
   host: 'http-intake.logs.datadoghq.com',
@@ -103,7 +105,6 @@ for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
 }
-
 client.once('ready', async () => {
   // appearanceCheck()
   // Node Deploy Commands (deploy-commands).js
@@ -203,6 +204,9 @@ client.once('ready', async () => {
 
 
   }, 10000);
+
+
+
 // setInterval(() => {
 //   client.channels.cache.get("997941489994825790").send({ content: `<@809126129646567444> bob 💋` })
 
@@ -228,14 +232,18 @@ client.on(Events.MessageDelete, async message => {
   const cityReff = db.collection('bots').doc(`${guildId}`).collection('settings').doc('messageLogChannel');
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
-
+  var attachments
 if(message.author.bot == true) {
     // From bot, disregard
   } else {
     if(message.attachments.size > 0) {
-      const deletedmsg = new EmbedBuilder()
+      message.attachments.forEach(one => {
+        const step1 =  attachments + " " + one.attachment
+        attachments =  step1.replace(undefined, '')
+      })
+  const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
-  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}\n\n**Attachment:**\n${message.attachments.first().attachment}`)
+  deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}\n\n**Attachment:**\n${attachments}`)
   deletedmsg.setFooter({
 text: "Designed by Arigo",
 iconURL: "https://cdn.arigoapp.com/logo"
@@ -404,6 +412,7 @@ client.on('interactionCreate', interaction => {
 	}
 });
 client.on('interactionCreate', async interaction => {
+
 	if (!interaction.isButton()) return;
   if(interaction.customId === 'subscribe-button') {
       // See if they have an Arigo account

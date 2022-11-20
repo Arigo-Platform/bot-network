@@ -11,29 +11,53 @@ module.exports = {
                 .setRequired(true)),
   
 	async execute(interaction, embed, db, events, Sentry) {
-    try {
+    console.log("??")
+    // try {
     // Define the Var
-    const user = interaction.user
-    var roles = interaction.member._roles.map(olddata => `<@&${olddata}>`)
-    const userId = interaction.member.user.id
-    const serverId = interaction.member.guild.id
-
-    embed.setTitle(`User Information for ${user.username}#${user.discriminator}`)
+    const user = interaction.options.getMember('user');
+    
+    const userId = user.user.id
+    const serverId = user.guild.id
+    var nickname
+    var roles
+    if(user.nickname === null) {
+      nickname = 'N/A'
+    } else {
+      nickname = user.nickname
+    }
+    if(user._roles.length === 0) {
+      roles = 'N/A'
+    } else {
+      roles = user._roles.map(olddata => `<@&${olddata}>`)
+    }
+    console.log("User ID", user.id)
+    console.log("Nickname", nickname)
+    console.log("Join Timestamp", parseInt(user.guild.joinedTimestamp / 1000, 10))
+    console.log("Join Date", parseInt(user.joinedTimestamp / 1000, 10))
+    console.log("Roles", roles)
+    console.log("Avatar", `https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`)
+    embed.setTitle(`User Information for ${user.user.username}#${user.user.discriminator}`)
+    
     embed.addFields(
-      { name: 'User ID 📜', value: `${user.id}`, inline: true  },
+      { name: 'User ID 📜', value: `${user.id}`, inline: true },
 
-      { name: 'Server Nickname 👤', value: `${interaction.member.nickname}`, inline: true  },
+      { name: 'Server Nickname 👤', value: `${nickname}`, inline: true },
 
-      { name: 'Server Roles  👥', value: `${roles}`, inline: false  },
+      { name: 'Server Join Date ⏰', value: `<t:${parseInt(user.guild.joinedTimestamp / 1000, 10)}> `, inline: true },
 
+      { name: 'Discord Join Date 🕰️', value: `<t:${parseInt(user.joinedTimestamp / 1000, 10)}> `, inline: true },
+
+      { name: 'Server Roles  👥', value: `${roles}`, inline: true }
+
+    
 	)
-    .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
+    .setThumbnail(`https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`)
     interaction.reply({ embeds: [embed ]})
-    events.info('Userinfo', { user: `${userId}`, infoUser: `${user.id}`, serverId: `${serverId}` });
-  } catch (e) {
-    Sentry.captureException(e);
-    console.error('Error in ping command', e)
+    events.info('Userinfo', { user: `${userId}`, infoUser: `${user.user.id}`, serverId: `${serverId}` });
+  // } catch (e) {
+  //   Sentry.captureException(e);
+  //   console.log('Error in userinfo command', e)
 
-  }
+  // }
   }
 }

@@ -59,6 +59,7 @@ iconURL: interaction.client.user.displayAvatarURL()
     
     }
       const res = await db.collection("bots").doc(`${serverId}`).collection('suggestions').doc(`${suggestionId}`).set(data);
+      events.info('Suggest', { user: `${userId}`, suggestionId: `${suggestionId}`, suggestion: `${suggestion}`, serverId: `${serverId}` });
     const data2 = {
       current: parseInt(suggestionId + parseInt("1"))
     }
@@ -75,7 +76,6 @@ iconURL: interaction.client.user.displayAvatarURL()
   embed.setDescription(`Your suggestion has been posted to <#${sid.data().id}>, thank you for your contributions.`)
   embed.setColor("Green")
   interaction.reply({ embeds: [embed] })
-  events.info('Suggest', { user: `${userId}`, suggestionId: `${suggestionId}`, suggestion: `${suggestion}`, serverId: `${serverId}` });
 
                 
 

@@ -1,12 +1,12 @@
 (async () => {
 const fs = require('fs');
 const { REST, SlashCommandBuilder, Routes } = require('discord.js');
-const clientId = process.env["clientId"]
-const guildId = process.env["guildId"]
-const token = process.env["token"]
-// const clientId = '952310761869410455'
-// const guildId = '864016187107966996'
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
+// const clientId = process.env["clientId"]
+// const guildId = process.env["guildId"]
+// const token = process.env["token"]
+const clientId = '952310761869410455'
+const guildId = '864016187107966996'
+const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
 let moderation = "ERROR - Stuck at Var";
 let suggestion = "ERROR - Stuck at Var";
 let utility = "ERROR - Stuck at Var";
@@ -25,7 +25,7 @@ var enabled = [
 const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('moderation');
 	const doc = await data.get();
 	if(doc.data().status === 'enabled') {
-	  enabled.push('ban', 'case', 'kick', 'slowmode', 'timeout', 'warn')
+	  enabled.push('unban', 'ban', 'case', 'kick', 'slowmode', 'timeout', 'warn', 'purge')
 	} else if(doc.data().status === 'disabled') {
 		const toRemove = [
 			'ban',
@@ -33,7 +33,9 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 			'kick',
 			'slowmode',
 			'timeout',
-			'warn'
+			'warn',
+			'unban',
+			'purge'
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))
@@ -59,10 +61,11 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push('calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
+	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
+		'serverinfo',
 		'emojify',
 		'ping',
 		'say',

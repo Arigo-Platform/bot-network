@@ -3,11 +3,11 @@ const { Client, Collection, Intents, ApplicationCommandOptionWithChoicesAndAutoc
 const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('ban')
-		.setDescription('Ban a user from the Discord server.')
+		.setName('unban')
+		.setDescription('Unban a user from the Discord server.')
     .addUserOption(option =>
 		option.setName('offender')
-			.setDescription('The user you want to ban')
+			.setDescription('The user you want to unban')
 			.setRequired(true))
       .addStringOption(option =>
 		option.setName('reason')
@@ -16,7 +16,7 @@ module.exports = {
   
 	async execute(interaction, embed, db, events, Sentry) {
   try {
-    // Define Variables
+    // Defer Reply
     const { MessageActionRow, ButtonBuilder } = require('discord.js');
     const username = interaction.member.user.username
     const userId = interaction.member.user.id
@@ -29,8 +29,9 @@ module.exports = {
     const { EmbedBuilder } = require('discord.js');
     const caseId = Math.floor(Math.random()*90000) + 10000;
 
-    // Get Ban Moderator ID
-    const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('banModId');
+
+    // Get General Moderator ID
+    const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('modId');
     const doc = await cityRef.get();
 
     // Set Log Channel
@@ -38,52 +39,32 @@ module.exports = {
     const doc2 = await cityReff.get();
     if (doc2.exists) {
     let logChannel = interaction.guild.channels.cache.get( doc2.data().id)
-    // See if they have the Ban Moderator role
+    // See if they have the General Moderator role
      if(interaction.member.roles.cache.has(doc.data().id) === true) {
-    // See if the offender is bannable
-    if(offenderMember.bannable === true) {
+    // See if the offender is not banned
+      try {
+      const ban = await interaction.guild.bans.fetch(offender.id)
+    } catch {
+      // Offnder ins't banned
+      embed.setTitle("😞 User not Banned")
+      embed.setDescription("This user isn't banned from the server so therefore no action has been taken. Please ensure the provided information is correct and rerun the command.")
+      embed.setColor("Red")
+      return interaction.reply({ embeds: [embed], ephemeral: true })
+    }
+     
       // Send Success Message
       embed.setTitle("🎉 Success")
-      embed.setDescription(`The server ban has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.`)
+      embed.setDescription(`The server unban has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.`)
       embed.setColor("Green")
       embed.addFields(
         { name: 'Reason', value: `${reason}`, inline: true },
         { name: 'Case ID', value: `${caseId}`, inline: true },
     )
       interaction.reply({ embeds: [embed] })
-      // Structure DM to offender
-      const embedtoSend = new EmbedBuilder()
-      embedtoSend.setAuthor({
-      name: interaction.member.user.username,
-      iconURL: interaction.member.user.avatarURL()
-      }),
-      embedtoSend.setFooter({
-      text: "Designed by Arigo Platform",
-      iconURL: interaction.client.user.displayAvatarURL()
-      }),
-      embedtoSend.setColor(interaction.guild.members.me.displayColor)
-      embedtoSend.setTimestamp()
-      embedtoSend.setTitle("🔨 Server Ban")
-      embedtoSend.setDescription("You have been banned from ``" + interaction.member.guild.name + "``" + ` by <@${userId}> (${userId}).`)
-      embedtoSend.addFields(
-      { name: 'Reason', value: `${reason}`, inline: true },
-      { name: 'Case ID', value: `${caseId}`, inline: true })
-      // Send DM to offender
-      offender.send({ embeds: [embedtoSend] }).catch(error => {  
-        setTimeout(() => {  
-      // If their DMs are off
-      embed.setFields([]);
-      embed.setTitle("😞 Unable to Notify")
-      embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been banned.`)
-      embed.setColor("Red")
-      interaction.followUp({ embeds: [embed], ephemeral: true })
-    }, 500);
-  });   
 
-        // Ban the user
-       
-        interaction.guild.members.ban(offender, { reason: `This user was banned by ${username} (${userId}) for ${reason}` })    
-       
+        // Unban the user
+        interaction.guild.bans.remove(offender.id, { reason: `This user was unbanned by ${username} (${userId}) for ${reason}` })
+
         embed.setFields([]);;
         // Log in database
         async function sendLogs() {
@@ -91,15 +72,15 @@ module.exports = {
             offender: offender.id,
             reason: reason,
             user: userId,
-            type: "Ban"
+            type: "Unban"
             }
         const res = await db.collection("bots").doc(`${serverId}`).collection('cases').doc(`${caseId}`).set(data)
         }
         sendLogs()
         
         // Send logs to log channel
-        embed.setTitle("📜 Server Ban Issued")
-        embed.setDescription(`<@${offender.id}> (${offender.id}) has been banned.`)
+        embed.setTitle("📜 Server Unban Issued")
+        embed.setDescription(`<@${offender.id}> (${offender.id}) has been unbanned.`)
         embed.addFields(
         { name: 'Reason', value: `${reason}`, inline: true },
         { name: 'Case ID', value: `${caseId}`, inline: true },
@@ -107,13 +88,7 @@ module.exports = {
         )     
         embed.setColor(interaction.guild.members.me.displayColor)
         logChannel.send({ embeds: [embed] })
-      } else {
-          // The bot cannot ban the user
-          embed.setTitle("😞 Insufficient Permissions")
-          embed.setDescription("I was unable to ban this member, please ensure my role is higher than the offender and be sure you're not trying to ban the server owner.")
-          embed.setColor("Red")
-          return interaction.reply({ embeds: [embed], ephemeral: true })
-      }
+         
       } else {  
          // They don't have the required role to run the command
           embed.setTitle("😞 Insufficient Permissions")
@@ -124,13 +99,13 @@ module.exports = {
      } else {
         // Log Channel not set
         embed.setTitle("⚠️ Logging Channel Not Set ")
-        embed.setDescription("A logging channel is not set via the dashboard and the server ban has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
+        embed.setDescription("A logging channel is not set via the dashboard and the server unban has not been issued. You can set the channel on the workspace dashbord.\n\nPlease redo the command once there is a Log Channel ID set on the dashboard. For assistance, please contact the [Arigo Platform Support Team](https://support.arigoapp.com).")
         embed.setColor("Red")
         return interaction.reply({ embeds: [embed], ephemeral: true })
       }
     } catch (e) { 
       Sentry.captureException(e);
-      console.error('Error in ban command', e)
+      console.error('Error in unban command', e)
     }
   },
 };
