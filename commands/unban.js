@@ -63,7 +63,8 @@ module.exports = {
       interaction.reply({ embeds: [embed] })
 
         // Unban the user
-        interaction.guild.bans.remove(offender.id, { reason: `This user was unbanned by ${username} (${userId}) for ${reason}` })
+        interaction.guild.bans.remove(offender.id, { reason: `This user was unbanned by ${username} (${userId}) for "${reason}"` })
+        events.info('Unban', { user: `${userId}`, offender: `${offender.id}`, reason: `${reason}`, serverId: `${serverId}` });
 
         embed.setFields([]);;
         // Log in database

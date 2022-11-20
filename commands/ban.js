@@ -81,9 +81,9 @@ module.exports = {
   });   
 
         // Ban the user
-       
-        interaction.guild.members.ban(offender, { reason: `This user was banned by ${username} (${userId}) for ${reason}` })    
-       
+        interaction.guild.members.ban(offender, { reason: `This user was banned by ${username} (${userId}) for "${reason}"` })    
+        events.info('Ban', { user: `${userId}`, offender: `${offender.id}`, reason: `${reason}`, serverId: `${serverId}` });
+
         embed.setFields([]);;
         // Log in database
         async function sendLogs() {

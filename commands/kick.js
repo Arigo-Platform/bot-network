@@ -74,15 +74,16 @@ module.exports = {
         // If their DMs are off
         embed.setFields([]);
         embed.setTitle("😞 Unable to Notify")
-        embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been banned.`)
+        embed.setDescription(`I was unable to DM the user due to their privacy settings, although they've still been kicked.`)
         embed.setColor("Red")
         interaction.followUp({ embeds: [embed], ephemeral: true })
       }, 500);
     });   
         // Kick the user
        
-        offenderInfo.kick(`This user was kicked by ${username} (${userId}) for ${reason}`)    
-       
+        offenderInfo.kick(`This user was kicked by ${username} (${userId}) for "${reason}"`)    
+        events.info('Kick', { user: `${userId}`, offender: `${offender.id}`, reason: `${reason}`, serverId: `${serverId}` });
+
         embed.setFields([]);;
         // Log in database
         async function sendLogs() {

@@ -45,7 +45,7 @@ embed.setTitle("🎉 Slowmode Set")
 embed.setDescription(`I've set a slowmode in this channel for **` + "`" + duration + "`** second(s). Use the `/slowmode 0` to turn off slowmode.")
 embed.setColor("Green")
 interaction.reply({ embeds: [embed] })
-events.info('Slowmode', { user: `${userId}`, channelid: `${interaction.channelId}`, duration: `${duration}`, serverId: `${serverId}` });
+events.info('Slowmode', { user: `${userId}`, channelId: `${interaction.channelId}`, duration: `${duration}`, serverId: `${serverId}` });
 
  } else {
   // No Permission
