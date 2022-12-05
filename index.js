@@ -133,29 +133,36 @@ client.once('ready', async () => {
     .setURL('https://forms.gle/4xNicVNPMvvF3K3K9'
     )
   )
+  const toSendrow = new ActionRowBuilder()
+          .addComponents(
+            new ButtonBuilder()
+              .setLabel('View Blog Update')
+              .setURL('https://support.arigoapp.com/blog/nov-update')
+              .setStyle(ButtonStyle.Link),
+          );
   // DM people stufff
   // const events = await db.collection('newsletter')
   // events.get().then((querySnapshot) => {
   //     const tempDoc = querySnapshot.docs.map((doc) => {
   //       return { id: doc.id, ...doc.data() }
   //     })
-  //     // console.log(tempDoc)
+  //     console.log(tempDoc)
   //     tempDoc.forEach(async user => {
   //     const toDm = await client.users.fetch(`${user.id}`)
+  
   //     const newsletterembed = new EmbedBuilder()
-  //     newsletterembed.setTitle("Arigo Newsletter #1 - Submit some feedback")
-  //     newsletterembed.setDescription(`Hey ${toDm.username},\n\nWe hope you're having a great evening today.\n\nWe're working hard everyday to ensure that we create the best and most diverse platform to help you manage your incredible Discord community. With that being said, your opinion matters greatly to us, so if you have some extra time today, we'd love to hear it.\n\nPlease use the botton below to submit a form directly to Team Arigo so we can ensure Arigo is built with your specifications in mind\n\nYou'll continue hearing from us with the latest and greatest information about Arigo and all the incredible features & events to come.\n\nBest,\nYour friends at Arigo`)
-  //     newsletterembed.setColor("#ed1d24")
-  //     newsletterembed.setImage('https://media.discordapp.net/attachments/952670803760152606/1026998513671884860/unknown.png')
-      
+  //     newsletterembed.setTitle("Arigo's November Update")
+  //     newsletterembed.setDescription(`Good evening ${toDm.username}, we hope you had an incredible Thanksgiving break 🦃!\n\nCrazy how time just flies, it's already the end of the month. We put together a monthly recap that contains vitial information about the future of Arigo and answers some frequently asked questions. Since you're on our newsletter, you're getting notified slightly earlier than the general public. Use the button below to view.\n\nSee you soon,\nTeam Arigo`)
+  //     newsletterembed.setColor("#a6d9f7")
+
   //     try {
-  //       // await toDm.send({ embeds: [newsletterembed], components: [newsletterRow] })
+  //       // await toDm.send({ embeds: [newsletterembed], components: [toSendrow] })
   //     } catch {
-  //      return console.log(`Was unable to DM ${user.id}`)
+  //      return console.log(`UH OH: Was unable to DM ${user.id}`)
   //     }
   //     console.log(`Processed ${user.id}`)
   //     })
-    // })
+  //   })
   
 
   // const toDm = await client.users.fetch('695167288801886269')
@@ -188,20 +195,30 @@ client.once('ready', async () => {
 //     });
 	console.log('Ready!');
 
-
+    // Get status & update
+    const cityReff = db.collection('bots').doc(`${guildId}`).collection('settings').doc(`appearance`);
+    const dbStatus = await cityReff.get();
+    if(parseInt(dbStatus.data().visibility) === 1) {
+      client.user.setStatus('online');
+    } else if(parseInt(dbStatus.data().visibility)=== 2) {
+      client.user.setStatus('dnd')
+    } else if(parseInt(dbStatus.data().visibility) === 3) {
+      client.user.setStatus('idle');
+    } else if(parseInt(dbStatus.data().visibility) === 4) {
+      client.user.setStatus('invisible');
+    }
   const activities = {
     "Team Arigo": "WATCHING",
     "in Arigo Community": "PLAYING",
     "on Arigo": "PLAYING",
-    "arigoapp.com": "WATCHING",
-    "the team": "WATCHING",
+    "arigoapp.com": "WATCHING", 
+    "the team": "WATCHING", 
   }
     setInterval(() => {
     // generate random number between 1 and list length.
     const keys = Object.keys(activities)
     const prop = keys[Math.floor(Math.random() * keys.length)]
     client.user.setPresence({ activities: [{ name: prop, type: activities[prop] }] });
-
 
   }, 10000);
 
@@ -678,33 +695,6 @@ client.on('interactionCreate', async interaction => {
 	}
 // }}) - Bot Suspension
 })
-
-// Appearance Check
-     function appearanceCheck() {
-      (async () => {
-        const doc = db.collection('bots').doc(`${guildId}`).collection('settings').doc('appearance');
-        const observer = doc.onSnapshot(async docSnapshot => {
-        const toModify = JSON.stringify(docSnapshot._fieldsProto.visibility.stringValue)
-        const toModify2 = toModify.replace(/['"]+/g, '')
-        const value = parseInt(toModify2)
-        console.log("got", value)
-        if(value === parseInt(1)) {
-          console.log("Output 1")
-          client.user.setStatus('online');
-        } else if(value === parseInt(2)) {
-          console.log("Output 2")
-          client.user.setStatus('dnd');
-        } else if(value === parseInt(3)) {
-          console.log("Output 3")
-          client.user.setStatus('idle');
-        } else if(value === parseInt(4)) {
-          console.log("Output 4")
-          client.user.setStatus('invisible');
-        }
-        }) 
-        console.log(client.presence)
-        })();
-    }
 
 // Get New Bot Creation DM
 app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
