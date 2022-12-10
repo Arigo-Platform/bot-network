@@ -97,7 +97,12 @@ app.listen(port, () => {
 
 // Get all the bots here, then forEach through them with the code below (creating a new client, initing commands, etc)
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent], partials: [Partials.Channel, Partials.Message] });
+const client = new Client({ intents: [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent,
+  GatewayIntentBits.GuildMembers,
+], partials: [Partials.Channel, Partials.Message] });
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -388,7 +393,8 @@ const blacklisted =[
   
   
 // Welcome Message
-client.on('guildMemberAdd', member => {
+client.on('guildMemberAdd', async member => {
+  console.log("member", member)
   const emojis = [
     '👏',
     '🙌',
@@ -400,17 +406,51 @@ client.on('guildMemberAdd', member => {
     '😁'
   ]
   const random = Math.floor(Math.random() * emojis.length);
-       const welcomeembed = new EmbedBuilder()
+      // Get values from database
+      const getTitle = db.collection('bots').doc(`${guildId}`).collection('settings').doc(`welcomeTitle`);
+      const doc1 = await getTitle.get();
 
-     welcomeembed.setTitle("Welcome to Arigo Community! :wave:") 
-     welcomeembed.setDescription(`Hey, <@${member.user.id}>! Welcome to Arigo Community, we'll let you get settled in. Until then, feel free to let us know if you need any guidance. Check out our [website](https://arigoapp.com) and [blog](https://medium.com/arigo) to learn more about Arigo Platform and our mission. We hope to see you soon! ${emojis[random]}`)
+      const getDescription = db.collection('bots').doc(`${guildId}`).collection('settings').doc(`welcomeText`);
+      const doc2 = await getDescription.get();
+
+      const getChannel = db.collection('bots').doc(`${guildId}`).collection('settings').doc(`welcomeChannel`);
+      const doc3 = await getChannel.get();
+
+      const capturedTitle = doc1.data().text
+      const capturedDescription = doc2.data().text
+      const capturedChannel = doc3.data().id
+
+      // Ensure that we filter out the things - Title
+      const titleOne = capturedTitle.replaceAll("{username}", `${member.user.username}`);
+      const titleTwo = titleOne.replaceAll("{serverName}", `${member.guild.name}`);
+      const finalTitle = titleTwo
+
+      // Ensure that we filter out the things - Description
+      const descriptionOne = capturedDescription.replaceAll("{members}", `${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)}`);
+      const descriptionTwo = descriptionOne.replaceAll("{userPing}", `<@${member.user.id}>`);
+      const descriptionThree = descriptionTwo.replaceAll("{serverName}", `${member.guild.name}`);
+      const descriptionFour = descriptionThree.replaceAll("{username}", `${member.user.username}`);
+      const descriptionFive = descriptionFour.replaceAll("/n", `\n`);
+      const finalDescription = descriptionFive
+
+      console.log({ 
+        1: finalTitle,
+        2: finalDescription,
+        3: capturedChannel
+    
+      })
+  // \n
+  // random emoji
+       const welcomeembed = new EmbedBuilder()
+     welcomeembed.setTitle(`${finalTitle}`) 
+     welcomeembed.setDescription(`${finalDescription}`)
     welcomeembed.setFooter({
   text: "Designed by Arigo",
   iconURL: "https://cdn.arigoapp.com/logo"
   }),
     welcomeembed.setColor("#ed1d24")
     welcomeembed.setTimestamp()
-         client.channels.cache.get("996893224570454058").send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
+    client.channels.cache.get(`${capturedChannel}`).send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
 });
 
 // Interaction Stuff
