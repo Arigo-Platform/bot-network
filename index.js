@@ -1,21 +1,5 @@
 const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
-// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-const token = process.env["token"]
-const guildId = process.env["guildId"]
-const clientId = process.env["clientId"]
-const environment = 'production'
-// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
-// const guildId = '864016187107966996'
-// const clientId = '952310761869410455'
-// const environment = 'development'
-const express = require('express')
-const app = express()
-const port = 4000
-const axios = require('axios');
-const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
-const { execSync } = require('child_process');
 // Database
 const {Firestore} = require('@google-cloud/firestore');
         const firestore = new Firestore();
@@ -23,6 +7,26 @@ const {Firestore} = require('@google-cloud/firestore');
           projectId: 'arigo-platform',
           keyFilename: 'key.json',
         });
+// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
+const guildId = process.env["guildId"]
+const clientId = process.env["clientId"]
+const getToken = db.collection('bots').doc(`${guildId}`)
+const tokenValue = await getToken.get();
+const token = tokenValue.data().token
+const environment = 'production'
+// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
+// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
+// const guildId = '864016187107966996'
+// const clientId = '952310761869410455'
+// const environment = 'development'
+//----
+const express = require('express')
+const app = express()
+const port = 4000
+const axios = require('axios');
+const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
+const { execSync } = require('child_process');
+
 
         // Sentry Info
         const Sentry = require("@sentry/node");
