@@ -1,21 +1,26 @@
 (async () => {
-const fs = require('fs');
-const { REST, SlashCommandBuilder, Routes } = require('discord.js');
 const clientId = process.env["clientId"]
 const guildId = process.env["guildId"]
-const token = process.env["token"]
+
+const {Firestore} = require('@google-cloud/firestore');
+const firestore = new Firestore();
+const db = new Firestore({
+projectId: 'arigo-platform',
+keyFilename: 'key.json',
+});
+const token = getToken.data().token
+
+const getToken = db.collection('bots').doc(`${guildId}`)
+  const tokenValue = await getToken.get();
+const fs = require('fs');
+const { REST, SlashCommandBuilder, Routes } = require('discord.js');
 // const clientId = '952310761869410455'
 // const guildId = '864016187107966996'
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
 let moderation = "ERROR - Stuck at Var";
 let suggestion = "ERROR - Stuck at Var";
 let utility = "ERROR - Stuck at Var";
-const {Firestore} = require('@google-cloud/firestore');
-        const firestore = new Firestore();
-        const db = new Firestore({
-          projectId: 'arigo-platform',
-          keyFilename: 'key.json',
-        });
+
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 var enabled = [
