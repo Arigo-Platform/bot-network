@@ -1,3 +1,4 @@
+(async() => {
 const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
 
@@ -6,8 +7,6 @@ const guildId = process.env["guildId"]
 const clientId = process.env["clientId"]
 const environment = 'production'
 
- 
-  
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
 // const guildId = '864016187107966996'
@@ -775,8 +774,7 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-(async() => {
 const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
-  client.login(setToken);
+  client.login(tokenValue.data().token);
 })()
