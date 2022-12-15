@@ -10,7 +10,7 @@ keyFilename: 'key.json',
 });
 const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
-  const token = tokenValue.data().token
+  const token = await tokenValue.data().token
 
 const fs = require('fs');
 const { REST, SlashCommandBuilder, Routes } = require('discord.js');
