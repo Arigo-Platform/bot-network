@@ -8,10 +8,10 @@ const db = new Firestore({
 projectId: 'arigo-platform',
 keyFilename: 'key.json',
 });
-const token = getToken.data().token
-
 const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
+  const token = tokenValue.data().token
+
 const fs = require('fs');
 const { REST, SlashCommandBuilder, Routes } = require('discord.js');
 // const clientId = '952310761869410455'
