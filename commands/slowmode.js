@@ -23,8 +23,9 @@ module.exports = {
     
 // Check for permissions
       if(interaction.member.roles.cache.has(doc.data().id) === true) {
-
-if(duration == '0' || 'off') {
+console.log(duration)
+if((duration === ('0')) || (durationstring === 'off')) {
+  console.log("tf")
   channel.setRateLimitPerUser('0', `The channel slowmode was removed by ${username} (${userId}).`)
   embed.setTitle("🎉 Slowmode Removed")
   embed.setDescription(`I've successfully disabled slowmode for this channel.`)
@@ -36,13 +37,20 @@ if(duration == '0' || 'off') {
    embed.setTitle("⚠️ Command Failure")
    embed.setDescription("Please enter a valid time for slowmode, such as `/slowmode 3`")
    embed.setColor("Red")
-   return interaction.reply({ embeds: [embed] })
+   return interaction.reply({ embeds: [embed], ephemeral: true })
+ }
+ // Slowmode too long
+ if(duration > '21600') {
+  embed.setTitle("⚠️ Command Failure")
+  embed.setDescription("I'm unable to set a slowmode for the provided duration. Please provide a value less than or equal to ``21600`` seconds.")
+  embed.setColor("Red")
+   return interaction.reply({ embeds: [embed], ephemeral: true })
  }
  
 // Set The Slowmode
 channel.setRateLimitPerUser(duration, `This slowmode was issued by ${username} (${userId}).`)
 embed.setTitle("🎉 Slowmode Set")
-embed.setDescription(`I've set a slowmode in this channel for **` + "`" + duration + "`** second(s). Use the `/slowmode 0` to turn off slowmode.")
+embed.setDescription(`I've set a slowmode in this channel for **${duration} second${duration > 1 ? 's' : ''}**.` + " Use `/slowmode off` to disable slowmode for this channel.")
 embed.setColor("Green")
 interaction.reply({ embeds: [embed] })
 events.info('Slowmode', { user: `${userId}`, channelId: `${interaction.channelId}`, duration: `${duration}`, serverId: `${serverId}` });
