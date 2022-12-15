@@ -1,20 +1,14 @@
 const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
-// Database
-const {Firestore} = require('@google-cloud/firestore');
-        const firestore = new Firestore();
-        const db = new Firestore({
-          projectId: 'arigo-platform',
-          keyFilename: 'key.json',
-        });
+
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 const guildId = process.env["guildId"]
 const clientId = process.env["clientId"]
-const getToken = db.collection('bots').doc(`${guildId}`)
-const tokenValue = await getToken.get();
-const token = tokenValue.data().token
 const environment = 'production'
-// MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
+
+ 
+  
+  // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
 // const guildId = '864016187107966996'
 // const clientId = '952310761869410455'
@@ -56,7 +50,16 @@ const { execSync } = require('child_process');
           op: "bot-network",
           name: "Arigo Bot Network",
         });
+  // Database
+const {Firestore} = require('@google-cloud/firestore');
+const firestore = new Firestore();
+const db = new Firestore({
+  projectId: 'arigo-platform',
+  keyFilename: 'key.json',
+});
+
   
+
 
 // Slack info
 const { WebClient } = require('@slack/web-api');
@@ -772,4 +775,8 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-client.login(token);
+(async() => {
+const getToken = db.collection('bots').doc(`${guildId}`)
+  const tokenValue = await getToken.get();
+  client.login(setToken);
+})()
