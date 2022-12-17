@@ -261,14 +261,18 @@ client.on(Events.MessageDelete, async message => {
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
   var attachments
-if(message.author.bot == true) {
+  try {
+if(message.author.bot == false) {
     // From bot, disregard
-  } else {
+  
     if(message.attachments.size > 0) {
       message.attachments.forEach(one => {
         const step1 =  attachments + " " + one.attachment
         attachments =  step1.replace(undefined, '')
+      }).catch(err => {
+        console.log("Message Deleted Error", err)
       })
+    
   const deletedmsg = new EmbedBuilder()
   deletedmsg.setTitle("New Message Deleted")
   deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}\n\n**Attachment:**\n${attachments}`)
@@ -293,16 +297,17 @@ deletedmsg.setTimestamp()
 logChannel.send({ embeds: [deletedmsg] }) 
   }
 }
+} catch (err) {
+  console.log("Message Deleted error", err)
+}
 });
 
 // Edited Message
 
 client.on(Events.MessageUpdate, async function(oldMessage, newMessage) {  
   
- if(newMessage.author.bot == true) {
+ if(newMessage.author.bot == false) {
    // From bot, disregard
-
-   } else {
   if(newMessage.content == oldMessage.content) {
     // Message is the same
   } else{
@@ -774,7 +779,8 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-const getToken = db.collection('bots').doc(`${guildId}`)
+  const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
   client.login(tokenValue.data().token);
+// client.login(token)
 })()
