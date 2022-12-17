@@ -37,7 +37,7 @@ module.exports = {
         // See if the amount if valid
         if (amount >= 1) {
             channel.bulkDelete(amount, true)
-            events.info('Purge', { user: `${userId}`, offender: `${offender.id}`, reason: `${reason}`, serverId: `${serverId}` });
+            events.info('Purge', { user: `${userId}`, amount: `${amount}`, channel: `${channel.id}`, serverId: `${serverId}` });
 
         // Send Success Message
         embed.setTitle("🎉 Success")
