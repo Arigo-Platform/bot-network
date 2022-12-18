@@ -28,7 +28,7 @@ module.exports = {
     const reason = interaction.options.getString('reason')
     const { EmbedBuilder } = require('discord.js');
     const caseId = Math.floor(Math.random()*90000) + 10000;
-
+    let bannable
     // Get Ban Moderator ID
     const cityRef = db.collection('bots').doc(`${serverId}`).collection('settings').doc('banModId');
     const doc = await cityRef.get();
@@ -40,8 +40,21 @@ module.exports = {
     let logChannel = interaction.guild.channels.cache.get( doc2.data().id)
     // See if they have the Ban Moderator role
      if(interaction.member.roles.cache.has(doc.data().id) === true) {
+      if(offenderMember === null) {
+        bannable = true
+      } else {
+        if(offenderMember.bannable === true) {
+          bannable = true
+        } else {
+           // The bot cannot ban the user
+           embed.setTitle("😞 Insufficient Permissions")
+           embed.setDescription("I was unable to ban this member, please ensure my role is higher than the offender and be sure you're not trying to ban the server owner.")
+           embed.setColor("Red")
+           return interaction.reply({ embeds: [embed], ephemeral: true })
+        }
+      }
     // See if the offender is bannable
-    if(offenderMember.bannable === true) {
+    if(bannable === true) {
       // Send Success Message
       embed.setTitle("🎉 Success")
       embed.setDescription(`The server ban has been issued to <@${offender.id}> (${offender.id}) and has been successfully logged.`)
