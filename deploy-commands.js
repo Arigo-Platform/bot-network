@@ -67,7 +67,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball', 'qna')
+	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
@@ -77,7 +77,6 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'say',
 		'userinfo',
 		'8ball',
-		"qna"
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))
