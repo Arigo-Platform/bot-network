@@ -1,6 +1,6 @@
 (async() => {
 const fs = require('fs');
-const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events } = require('discord.js');
+const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 const guildId = process.env["guildId"]
@@ -15,7 +15,6 @@ const environment = 'production'
 //----
 const express = require('express')
 const app = express()
-const port = 4000
 const axios = require('axios');
 const { MessageActionRow, ButtonBuilder, Modal, TextInputComponent } = require('discord.js');
 const { execSync } = require('child_process');
@@ -45,6 +44,7 @@ const { execSync } = require('child_process');
         Sentry.setTag("guildId", guildId);
         Sentry.setTag("clientId", clientId);
 
+
         const transaction = Sentry.startTransaction({
           op: "bot-network",
           name: "Arigo Bot Network",
@@ -56,8 +56,10 @@ const db = new Firestore({
   projectId: 'arigo-platform',
   keyFilename: 'key.json',
 });
+const getPort = db.collection('bots').doc(`${guildId}`)
+const portValue = await getPort.get();
+const port = portValue.data().port
 
-  
 
 
 // Slack info
@@ -117,10 +119,9 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 client.once('ready', async () => {
-  // appearanceCheck()
   // Node Deploy Commands (deploy-commands).js
-  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
-  console.log(`Output: ${output}`);
+  // const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  // console.log(`Output: ${output}`);
   
   const row = new ActionRowBuilder()
 			.addComponents(
@@ -234,24 +235,6 @@ client.once('ready', async () => {
   }, 10000);
 
 
-
-// setInterval(() => {
-//   client.channels.cache.get("997941489994825790").send({ content: `<@809126129646567444> bob 💋` })
-
-//   }, 500);
-  
-  // client.on('messageCreate', async msg => {
-  // if(msg.author.id == '695167288801886269'){
-  //     if(msg.content.includes(':e0_laugh:' || ':lol:')){
-  //       msg.delete()
-  //   const embedkosma = new EmbedBuilder()
-  //     embedkosma.setTitle("🎉 Annoying Emoji Filtered")
-  //    embedkosma.setDescription(`Internal automated systems have filtered an annoying emoji. Due to this being an automated action, a Case ID will not be assigned and this case will not be logged.`)
-  //    embedkosma.setColor("Green")
-  //   msg.channel.send({ embeds: [embedkosma] })
-  // }
-  // }
-
 })
 
 
@@ -262,9 +245,10 @@ client.on(Events.MessageDelete, async message => {
   let logChannel = await client.channels.fetch(doc2.data().id)
   var attachments
   try {
-if(message.author.bot == false) {
-    // From bot, disregard
-  
+  if(message.author === null) {
+    // Bot
+    return
+  }
     if(message.attachments.size > 0) {
       message.attachments.forEach(one => {
         const step1 =  attachments + " " + one.attachment
@@ -274,33 +258,32 @@ if(message.author.bot == false) {
       })
     
   const deletedmsg = new EmbedBuilder()
-  deletedmsg.setTitle("New Message Deleted")
+  deletedmsg.setTitle("Message Deleted")
   deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}\n\n**Attachment:**\n${attachments}`)
-  deletedmsg.setFooter({
-text: "Designed by Arigo",
-iconURL: "https://cdn.arigoapp.com/logo"
-}),
+//   deletedmsg.setFooter({
+// text: "Designed by Arigo",
+// iconURL: "https://cdn.arigoapp.com/logo"
+// }),
 deletedmsg.setColor("#ed1d24")
-deletedmsg.setTimestamp()
+// deletedmsg.setTimestamp()
 logChannel.send({ embeds: [deletedmsg] })
 } else {
 // No Attachment
-      const deletedmsg = new EmbedBuilder()
-  deletedmsg.setTitle("New Message Deleted")
+    const deletedmsg = new EmbedBuilder()
+  deletedmsg.setTitle("Message Deleted")
   deletedmsg.setDescription(`**User:** <@${message.author.id}> (${message.author.id})\n**Channel:** <#${message.channelId}> (${message.channelId})\n**Content:** ${message.content}`)
-  deletedmsg.setFooter({
-text: "Designed by Arigo",
-iconURL: "https://cdn.arigoapp.com/logo"
-}),
+//   deletedmsg.setFooter({
+// text: "Designed by Arigo",
+// iconURL: "https://cdn.arigoapp.com/logo"
+// }),
 deletedmsg.setColor("#ed1d24")
-deletedmsg.setTimestamp()
+// deletedmsg.setTimestamp()
 logChannel.send({ embeds: [deletedmsg] }) 
   }
-}
 } catch (err) {
   console.log("Message Deleted error", err)
 }
-});
+})
 
 // Edited Message
 
@@ -317,19 +300,19 @@ client.on(Events.MessageUpdate, async function(oldMessage, newMessage) {
   const doc2 = await cityReff.get();
   let logChannel = await client.channels.fetch(doc2.data().id)
   const editedmsg = new EmbedBuilder()
-  editedmsg.setTitle("New Message Edited")
+  editedmsg.setTitle("Message Edited")
   editedmsg.setDescription(`**User:** <@${newMessage.author.id}> (${newMessage.author.id})\n**Channel:** <#${newMessage.channelId}> (${newMessage.channelId})`)
 
   editedmsg.addFields(
   { name: 'Old Message', value: `${oldMessage.content}`, inline: true },
   { name: 'New Message', value: `${newMessage.content}`, inline: true },
 	)
-  editedmsg.setFooter({
-text: "Designed by Arigo",
-iconURL: "https://cdn.arigoapp.com/logo"
-}),
+//   editedmsg.setFooter({
+// text: "Designed by Arigo",
+// iconURL: "https://cdn.arigoapp.com/logo"
+// }),
 editedmsg.setColor("#ed1d24")
-editedmsg.setTimestamp()
+// editedmsg.setTimestamp()
 logChannel.send({ embeds: [editedmsg] }) 
   }
   }
@@ -351,61 +334,11 @@ const blacklisted =[
   "unlicense",
   "alt"
 ]
-  client.on('messageCreate', async msg => {
-    if(blacklisted.some(blacklist => msg.content.toLowerCase().includes(blacklist))) {
-
-       if(msg.member.roles.cache.has("864016187226718251") === false) {
-        
-            (async () => {
-
-  // Post a message to the channel, and await the result.
-  // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-  const result = await web.chat.postMessage({
-  
-	blocks: [
-		{
-			type: "section",
-			text: {
-				type: "mrkdwn",
-				text: `*${msg.author.username}* (${msg.author.id}), has posted a message in Arigo Community that could potentially start drama. `
-			}
-		},
-		{
-			type: "section",
-			fields: [
-				{
-					type: "mrkdwn",
-					text: "*Message:*\n`" + msg.content + "`"
-				},
-				{
-					type: "mrkdwn",
-					text: "*When:*\n" + new Date()
-				},
-				{
-					type: "mrkdwn",
-					text: "*Message URL:*\n" + `https://discord.com/channels/${msg.guildId}/${msg.channelId}/${msg.id}`
-				},
-				{
-					type: "mrkdwn",
-					text: "*Channel ID:*\n" + msg.channelId
-				}
-			]
-		}
-	],
-    channel: threatSlack,
-  });
-
-  console.log(`Successfully send message ${result.ts} in conversation ${threatSlack}`);
-})();
-    }
-    }
-})
 
   
   
 // Welcome Message
 client.on('guildMemberAdd', async member => {
-  console.log("member", member)
   const emojis = [
     '👏',
     '🙌',
@@ -448,19 +381,18 @@ client.on('guildMemberAdd', async member => {
         1: finalTitle,
         2: finalDescription,
         3: capturedChannel
-    
       })
   // \n
   // random emoji
        const welcomeembed = new EmbedBuilder()
      welcomeembed.setTitle(`${finalTitle}`) 
      welcomeembed.setDescription(`${finalDescription}`)
-    welcomeembed.setFooter({
-  text: "Designed by Arigo",
-  iconURL: "https://cdn.arigoapp.com/logo"
-  }),
+  //   welcomeembed.setFooter({
+  // text: "Designed by Arigo",
+  // iconURL: "https://cdn.arigoapp.com/logo"
+  // }),
     welcomeembed.setColor("#ed1d24")
-    welcomeembed.setTimestamp()
+    // welcomeembed.setTimestamp()
     client.channels.cache.get(`${capturedChannel}`).send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
 });
 
@@ -468,13 +400,11 @@ client.on('guildMemberAdd', async member => {
 
 client.on('interactionCreate', interaction => {
 	if (!interaction.isModalSubmit()) return;
-	console.log(interaction);
 });
 client.on('interactionCreate', interaction => {
   if (!interaction.isModalSubmit()) return;
 	// Get the data entered by the user
 	const support = interaction.fields.getTextInputValue('supportInput');
-	console.log({ support });
 	if (interaction.customId === 'myModal') {
 		 interaction.reply({ content: 'Your submission was recieved successfully!' });
 	}
@@ -511,12 +441,12 @@ client.on('interactionCreate', async interaction => {
 			)
       // Create embed
       const noAccessEmbed = new EmbedBuilder()
-      noAccessEmbed.setFooter({
-      text: "Designed by Arigo",
-      iconURL: interaction.client.user.displayAvatarURL()
-      }),
+      // noAccessEmbed.setFooter({
+      // text: "Designed by Arigo",
+      // iconURL: interaction.client.user.displayAvatarURL()
+      // }),
       noAccessEmbed.setColor('Red')
-      noAccessEmbed.setTimestamp() 
+      // noAccessEmbed.setTimestamp() 
       noAccessEmbed.setTitle("<:x_:957002602921492570> Almost there...")
       noAccessEmbed.setDescription("You're almost there! In order to setup newsletter notifications, you'll need to setup an account with Arigo.\n\nDon't worry, creating an account takes seconds.")
       return interaction.reply({ embeds: [noAccessEmbed], components: [row], ephemeral: true })
@@ -541,12 +471,12 @@ client.on('interactionCreate', async interaction => {
       });
       // Create embed
       const alreadyExistsEmbed = new EmbedBuilder()
-      alreadyExistsEmbed.setFooter({
-      text: "Designed by Arigo",
-      iconURL: interaction.client.user.displayAvatarURL()
-      }),
+      // alreadyExistsEmbed.setFooter({
+      // text: "Designed by Arigo",
+      // iconURL: interaction.client.user.displayAvatarURL()
+      // }),
       alreadyExistsEmbed.setColor('Red')
-      alreadyExistsEmbed.setTimestamp() 
+      // alreadyExistsEmbed.setTimestamp() 
       alreadyExistsEmbed.setTitle("<:x_:957002602921492570> Woah")
       alreadyExistsEmbed.setDescription("You're already subscribed to our waitlist, nothing else to worry about!")
       return interaction.reply({ embeds: [alreadyExistsEmbed], ephemeral: true })
@@ -571,12 +501,12 @@ client.on('interactionCreate', async interaction => {
       const res = await db.collection("newsletter").doc(`${interaction.user.id}`).set(data)
       // Send notification
       const successEmbed = new EmbedBuilder()
-      successEmbed.setFooter({
-      text: "Designed by Arigo",
-      iconURL: interaction.client.user.displayAvatarURL()
-      }),
+      // successEmbed.setFooter({
+      // text: "Designed by Arigo",
+      // iconURL: interaction.client.user.displayAvatarURL()
+      // }),
       successEmbed.setColor('Green')
-      successEmbed.setTimestamp() 
+      // successEmbed.setTimestamp() 
       successEmbed.setTitle("<:check:957002603252830208> You're subscribed")
       successEmbed.setDescription(`You'll get notifications straight to your Discord inbox - just make sure your privacy settings allow direct messages from server members.\n\nYou can unsubscribe at anytime using the ` + "`Unsubscribe` button above.")
       return interaction.reply({ embeds: [successEmbed], ephemeral: true })
@@ -611,12 +541,12 @@ if(interaction.customId === 'unsubscribe-button') {
     cityRef.delete()
     // Send embed
     const deleteSuccessEmbed = new EmbedBuilder()
-    deleteSuccessEmbed.setFooter({
-    text: "Designed by Arigo",
-    iconURL: interaction.client.user.displayAvatarURL()
-    }),
+    // deleteSuccessEmbed.setFooter({
+    // text: "Designed by Arigo",
+    // iconURL: interaction.client.user.displayAvatarURL()
+    // }),
     deleteSuccessEmbed.setColor('Green')
-    deleteSuccessEmbed.setTimestamp() 
+    // deleteSuccessEmbed.setTimestamp() 
     deleteSuccessEmbed.setTitle("<:check:957002603252830208> You're unsubscribed")
     deleteSuccessEmbed.setDescription("You won't get anymore newsletter notifications from us in the future, feel free to resubscribe at anytime.")
     return interaction.reply({ embeds: [deleteSuccessEmbed], ephemeral: true })
@@ -636,12 +566,12 @@ if(interaction.customId === 'unsubscribe-button') {
       });
     // Send embed
     const notSubscribedEmbed = new EmbedBuilder()
-    notSubscribedEmbed.setFooter({
-    text: "Designed by Arigo",
-    iconURL: interaction.client.user.displayAvatarURL()
-    }),
+    // notSubscribedEmbed.setFooter({
+    // text: "Designed by Arigo",
+    // iconURL: interaction.client.user.displayAvatarURL()
+    // }),
     notSubscribedEmbed.setColor('Red')
-    notSubscribedEmbed.setTimestamp() 
+    // notSubscribedEmbed.setTimestamp() 
     notSubscribedEmbed.setTitle("<:x_:957002602921492570> Uh oh")
     notSubscribedEmbed.setDescription("You're not subscribed to our newsletter so we were unable to unsubscribe you.")
     return interaction.reply({ embeds: [notSubscribedEmbed], ephemeral: true })
@@ -732,21 +662,347 @@ client.on('interactionCreate', async interaction => {
 
     const embed = new EmbedBuilder()
   
-    embed.setFooter({
-  text: "Designed by Arigo",
-  iconURL: interaction.client.user.displayAvatarURL()
-  }),
+  //   embed.setFooter({
+  // text: "Designed by Arigo",
+  // iconURL: interaction.client.user.displayAvatarURL()
+  // }),
     embed.setColor(interaction.guild.members.me.displayColor)
-    embed.setTimestamp()
+    // embed.setTimestamp()
 	try {
 		await command.execute(interaction, embed, db, events, Sentry);
 	} catch (error) {
 		console.error('Error', error);
 		return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	}
+  }
+
 // }}) - Bot Suspension
 })
 
+
+
+
+
+
+// Reaction Roles // Role Menus
+
+
+// Send Reaction Roles Initital Embed
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isButton()) return;
+  const captureId = interaction.customId.split('_');
+  const id = captureId[2]
+  // Get in database
+  const getNotification = db.collection('bots').doc(`${guildId}`).collection('notifications').doc(id)
+  const notification = await getNotification.get();
+  const snapshot = await db.collection('bots').doc(`${guildId}`).collection('notifications').doc(id).collection('discord').get()
+  const member = await interaction.guild.members.fetch(interaction.user.id)
+  if(!notification.exists) {
+    // Reaction Role Not Found
+    const reactionRoleNotFound = new EmbedBuilder()
+    reactionRoleNotFound.setTitle(`😞 Unable to Identify`) 
+    reactionRoleNotFound.setDescription(`We were unable to identify that notification set. If you need more assistance, please contact [Arigo Support](https://support.arigoapp.com).`)
+    // reactionRoleNotFound.setFooter({
+    // text: "Designed by Arigo",
+    // iconURL: "https://cdn.arigoapp.com/logo"
+    // }),
+    reactionRoleNotFound.setColor("Red")
+    return interaction.reply({ embeds: [reactionRoleNotFound], ephemeral: true })
+  }
+
+
+    var array = []
+    var cID = ''
+    await snapshot.docs.map(async doc => {
+    if(member.roles.cache.has(`${doc.id}`)) {
+      cID = cID + doc.id + ','
+      array.push({ label: `${doc.data().title}`, description: `${doc.data().description}`, value: `${doc.id}`, default: true })
+    } else {
+      array.push({ label: `${doc.data().title}`, description: `${doc.data().description}`, value: `${doc.id}`, default: false })
+    }
+  })
+ 
+  if(cID.length === 0) {
+    cID = ','
+  }
+  const row = new ActionRowBuilder()
+  .addComponents(
+    new StringSelectMenuBuilder()
+      // .setCustomId(`select_${id}`)
+      .setCustomId(cID)
+      .setPlaceholder('Nothing selected')
+      .setMinValues(0)
+      .setMaxValues(array.length)       
+      .addOptions(array)
+  );
+
+  const reactionRoleEmbed = new EmbedBuilder()
+  reactionRoleEmbed.setTitle(`🔔 | Modify Roles`) 
+  reactionRoleEmbed.setDescription(`Use the menu below to modify your roles for this menu.`)
+  // reactionRoleEmbed.setFooter({
+  //   text: "Designed by Arigo",
+  //   iconURL: "https://cdn.arigoapp.com/logo"
+  //   }),
+  reactionRoleEmbed.setColor("#ed1d24")
+  
+   interaction.reply({ embeds: [reactionRoleEmbed], components: [row], ephemeral: true })
+});
+
+// Respond to Reaction Role Modifications
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isStringSelectMenu()) return;
+  const selected = interaction.values.join(',');
+  const id = interaction.customId
+  const userId = interaction.user.id
+  const guildId = interaction.member.guild.id
+  const member = await interaction.guild.members.fetch(interaction.user.id)
+  const values = interaction.values[0]
+  const roles = interaction.member.roles.cache
+
+  // Get User Roles
+  var userRoles = []
+  roles.map(role => {
+    userRoles.push(role.id)
+  })
+
+  // Set Currently Selected Roles
+  var selectedRoles = []
+  selectedRoles = selected.split(',');
+
+  // Set Pre-Selected Roles
+  var preSelected = []
+  preSelected = id.split(',');
+  preSelected.pop()
+  
+    var RemoveAll = function() {
+      preSelected.forEach(role => {
+        member.roles.remove(`${role}`).catch(err => { console.log("Was unable to remove all roles:", preSelected )})
+      })
+    }
+  
+  var AddAll = function() {
+    selectedRoles.forEach(role => {
+      member.roles.add(`${role}`).catch(err => { console.log("Was unable to add a role", role )})
+       // update at the start
+       selectedRoles = []
+       selectedRoles.push(role)
+     })
+  }
+  if(selectedRoles.length === 1) {
+    if(selectedRoles[0].length > 5) {
+      selectedRoles.push('')
+    }
+  }
+  // if(selectedRoles.length === 1) {
+  //   // Remove All Roles
+  //   RemoveAll()
+  //   // Reply Successfully
+  //     const RemovereactionRoleEmbed = new EmbedBuilder()
+  //     RemovereactionRoleEmbed.setTitle(`✅ All Roles Successfully Removed`) 
+  //     RemovereactionRoleEmbed.setDescription(`I've successfully removed all the requested roles from you.`)
+  //     RemovereactionRoleEmbed.setFooter({
+  //       text: "Designed by Arigo",
+  //       iconURL: "https://cdn.arigoapp.com/logo"
+  //       }),
+  //       RemovereactionRoleEmbed.setColor("#ed1d24")
+  //     interaction.reply({ embeds: [RemovereactionRoleEmbed], ephemeral: true })
+  // } else {
+  RemoveAll()
+  AddAll()
+  // Reply Successfully
+  const AddreactionRoleEmbed = new EmbedBuilder()
+    AddreactionRoleEmbed.setTitle(`✅ Roles Successfully Updated`) 
+    AddreactionRoleEmbed.setDescription(`I've successfully updated your roles accordingly.`)
+    // AddreactionRoleEmbed.setFooter({
+    //   text: "Designed by Arigo",
+    //   iconURL: "https://cdn.arigoapp.com/logo"
+    //   }),
+      AddreactionRoleEmbed.setColor("#ed1d24")
+      interaction.update({ embeds: [AddreactionRoleEmbed], components: [], ephemeral: true })
+      
+  // }
+
+  return
+  console.log("At the start", preSelected)  
+  console.log("Now Selected", selectedRoles)
+  Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};  
+
+  const dif1 = preSelected.diff( selected ); 
+  const dif2 = selectedRoles.diff( preSelected ); 
+  if(dif1.length === 0) {
+    console.log("Successful Second Review", dif2)
+    if(userRoles.includes(dif2[0])) {
+      console.log("Remove Role Second", dif2[0])
+      // Remove Role
+      member.roles.remove(dif2[0]).then(success => {
+        const RemovereactionRoleEmbed = new EmbedBuilder()
+        RemovereactionRoleEmbed.setTitle(`✅ Role Successfully Removed`) 
+        RemovereactionRoleEmbed.setDescription(`I've successfully removed the <@&` + dif2[0] + '> role from you.')
+        // RemovereactionRoleEmbed.setFooter({
+        //   text: "Designed by Arigo",
+        //   iconURL: "https://cdn.arigoapp.com/logo"
+        //   }),
+          RemovereactionRoleEmbed.setColor("#ed1d24")
+        interaction.reply({ embeds: [RemovereactionRoleEmbed], ephemeral: true })
+        selectedRoles = selectedRoles.filter(e => e !== dif2[0]);
+      })
+    } else {
+      // Add Role
+      console.log("Role Added Second #1", dif2)
+    console.log("Role Added Second", dif2[0])
+    member.roles.add(dif2[0]).then(success => {
+      const AddreactionRoleEmbed = new EmbedBuilder()
+      AddreactionRoleEmbed.setTitle(`✅ Role Successfully Added`) 
+      AddreactionRoleEmbed.setDescription(`I've successfully given you the <@&` + dif2[0] + '> role.')
+      // AddreactionRoleEmbed.setFooter({
+      //   text: "Designed by Arigo",
+      //   iconURL: "https://cdn.arigoapp.com/logo"
+      //   }),
+        AddreactionRoleEmbed.setColor("#ed1d24")
+      interaction.reply({ embeds: [AddreactionRoleEmbed], ephemeral: true })
+    })
+    }
+  } else {
+    console.log("Successful First Review", dif1[0])
+
+    if(userRoles.includes(dif1[0])) {
+      console.log("Remove Role First", dif1[0])
+      // Remove Role
+      member.roles.remove(`${dif1[0]}`).then(success => {
+        const RemovereactionRoleEmbed = new EmbedBuilder()
+        RemovereactionRoleEmbed.setTitle(`✅ Role Successfully Removed`) 
+        RemovereactionRoleEmbed.setDescription(`I've successfully removed the <@&` + dif1[0] + '> role from you.')
+        RemovereactionRoleEmbed.setFooter({
+          text: "Designed by Arigo",
+          iconURL: "https://cdn.arigoapp.com/logo"
+          }),
+          RemovereactionRoleEmbed.setColor("#ed1d24")
+        interaction.reply({ embeds: [RemovereactionRoleEmbed], ephemeral: true })
+         selectedRoles = selectedRoles.filter(e => e !== dif1[0]);
+         console.log("updated", selectedRoles)
+      })
+    } else {
+      // Add Role
+    console.log("Role Added First", dif1[0])
+    member.roles.add(dif2[0]).then(success => {
+      const AddreactionRoleEmbed = new EmbedBuilder()
+      AddreactionRoleEmbed.setTitle(`✅ Role Successfully Added`) 
+      AddreactionRoleEmbed.setDescription(`I've successfully given you the <@&` + dif1[0] + '> role.')
+      AddreactionRoleEmbed.setFooter({
+        text: "Designed by Arigo",
+        iconURL: "https://cdn.arigoapp.com/logo"
+        }),
+        AddreactionRoleEmbed.setColor("#ed1d24")
+      interaction.reply({ embeds: [AddreactionRoleEmbed], ephemeral: true })
+    })
+    }
+
+
+  }
+
+ 
+
+      
+     
+  return
+  // var userRoles = []
+
+  // // Set User's Current Roles
+  // roles.map(role => {
+  //   userRoles.push(role.id)
+  // })
+  // // Set Total Roles In Reaction Role Set
+  // var totalRoles = []
+  // totalRoles = id.split(',');
+  // totalRoles.pop()
+
+  // // Set Currently Selected Roles
+  // var selectedRoles = []
+  // selectedRoles = selected.split(',');
+
+  // let difference = totalRoles
+  //                .filter(x => !selectedRoles.includes(x))
+  //                .concat(selectedRoles.filter(x => !totalRoles.includes(x)));
+  //                console.log("difference", difference)
+
+  
+  // // selectedRoles.forEach(role => {
+  // //   if(totalRoles.includes(role.id)) {
+  // //     console.log ("yes", role.id)
+  // //   } else {
+  // //     console.log("no", role.id)
+  // //   }  
+  // // })
+  // console.log("Total Roles In Reaction Role Set", totalRoles)
+  // console.log("Selected Roles", selectedRoles)
+  // console.log("New User Roles", userRoles)
+  // console.log("Oddly iD", id)
+  // return
+
+
+  //////////
+
+  if(member.roles.cache.has(`${roleId}`)) {
+    member.roles.remove(roleId).then(success => {
+      console.log("Removed", roleId)
+      const RemovereactionRoleEmbed = new EmbedBuilder()
+      RemovereactionRoleEmbed.setTitle(`✅ Role Successfully Removed`) 
+      RemovereactionRoleEmbed.setDescription(`I've successfully removed the <@&` + roleId + '> role from you.')
+      RemovereactionRoleEmbed.setFooter({
+        text: "Designed by Arigo",
+        iconURL: "https://cdn.arigoapp.com/logo"
+        }),
+        RemovereactionRoleEmbed.setColor("#ed1d24")
+      interaction.reply({ embeds: [RemovereactionRoleEmbed], ephemeral: true })
+    })
+  } else {
+    console.log("Added", roleId)
+    member.roles.add(roleId).then(success => {
+      const AddreactionRoleEmbed = new EmbedBuilder()
+      AddreactionRoleEmbed.setTitle(`✅ Role Successfully Added`) 
+      AddreactionRoleEmbed.setDescription(`I've successfully given you the <@&` + roleId + '> role.')
+      AddreactionRoleEmbed.setFooter({
+        text: "Designed by Arigo",
+        iconURL: "https://cdn.arigoapp.com/logo"
+        }),
+        AddreactionRoleEmbed.setColor("#ed1d24")
+      interaction.reply({ embeds: [AddreactionRoleEmbed], ephemeral: true })
+    })
+  }
+  // Add Role
+});
+
+// Deploy New Reaction Roles
+app.get('/bot/push/role-menu/:id/', async (req, res) => {
+    // Get in database
+    const getNotifications = db.collection('bots').doc(`${guildId}`).collection('notifications').doc(req.params.id)
+    const notifications = await getNotifications.get();
+    // Create embed
+    const newReactionRoleEmbed = new EmbedBuilder()
+    newReactionRoleEmbed.setTitle(`${notifications.data().embed_title}`) 
+    newReactionRoleEmbed.setDescription(`${notifications.data().embed_description}`)
+    // newReactionRoleEmbed.setFooter({
+    // text: "Designed by Arigo",
+    // iconURL: "https://cdn.arigoapp.com/logo"
+    // }),
+    newReactionRoleEmbed.setColor("#ed1d24")
+
+    // Button
+    const newReactionRoleRow = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+        .setLabel('Modify Notifications')
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId(`reaction_role_${req.params.id}`)
+        .setEmoji('🔔')
+			)
+    client.channels.cache.get(`${notifications.data().channelId}`).send({ embeds: [newReactionRoleEmbed], components: [newReactionRoleRow] }).then(msg => {
+
+    })
+    return res.status(200).json('Success')
+
+})
 // Get New Bot Creation DM
 app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
   // Get the Server
@@ -758,7 +1014,7 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
 			.addComponents(
 				new ButtonBuilder()
         .setLabel('Visit your Workspace')
-        .setStyle(ButtonStyle.Link)
+        .setStyle(ButtonStyle.Primary)
         .setURL('https://app.arigoapp.com/workspace/123')
 			)
       

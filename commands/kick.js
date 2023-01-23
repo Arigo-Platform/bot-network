@@ -57,12 +57,12 @@ module.exports = {
       name: interaction.member.user.username,
       iconURL: interaction.member.user.avatarURL()
       }),
-      embedtoSend.setFooter({
-      text: "Designed by Arigo Platform",
-      iconURL: interaction.client.user.displayAvatarURL()
-      }),
+      // embedtoSend.setFooter({
+      // text: "Designed by Arigo Platform",
+      // iconURL: interaction.client.user.displayAvatarURL()
+      // }),
       embedtoSend.setColor(interaction.guild.members.me.displayColor)
-      embedtoSend.setTimestamp()
+      // embedtoSend.setTimestamp()
       embedtoSend.setTitle("🔨 Server Kick")
       embedtoSend.setDescription("You have been kicked from ``" + interaction.member.guild.name + "``" + ` by <@${userId}> (${userId}).`)
       embedtoSend.addFields(

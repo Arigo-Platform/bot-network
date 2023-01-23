@@ -1,7 +1,10 @@
 (async () => {
 const clientId = process.env["clientId"]
 const guildId = process.env["guildId"]
-
+// const clientId = '952310761869410455'
+// const guildId = '864016187107966996'
+// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
+const axios = require('axios');
 const {Firestore} = require('@google-cloud/firestore');
 const firestore = new Firestore();
 const db = new Firestore({
@@ -13,10 +16,8 @@ const getToken = db.collection('bots').doc(`${guildId}`)
   const token = await tokenValue.data().token
 
 const fs = require('fs');
-const { REST, SlashCommandBuilder, Routes } = require('discord.js');
-// const clientId = '952310761869410455'
-// const guildId = '864016187107966996'
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.Gka9mg.QvSBDBEYm-PpEDjvXJnoJ36nWyoxCEshCWTRn8'
+const { REST, SlashCommandBuilder, Routes, WebhookClient } = require('discord.js');
+
 let moderation = "ERROR - Stuck at Var";
 let suggestion = "ERROR - Stuck at Var";
 let utility = "ERROR - Stuck at Var";
@@ -66,7 +67,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
+	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball', 'qna')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
@@ -75,7 +76,8 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'ping',
 		'say',
 		'userinfo',
-		'8ball'
+		'8ball',
+		"qna"
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))
@@ -105,4 +107,13 @@ const rest = new REST({ version: '9' }).setToken(token);
 	} catch (error) {
 		console.error(error);
 	}
+
+			const webhookInfo = {
+				id: '1058385208623251488',
+				token: 'ZjYqjMcdwETGJmfXJMkt1OR3FqujFJAn-_Ik3bOeQn6ceEhC9-EWqWJkdG50lZTH2Q4Z'
+			}
+			const webhook = new WebhookClient(webhookInfo);
+			webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
+			.then(message => console.log(`Sent message: ${message.content}`))
+			.catch(console.error);
 })();

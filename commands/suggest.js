@@ -42,10 +42,10 @@ const suggestion = interaction.options.getString('suggestion');
     embed.setColor(interaction.guild.members.me.displayColor)
     embed.setTitle(`New Suggestion from ${interaction.member.user.username}`)
     embed.setDescription(suggestion)
-    embed.setFooter({
-  text: `ID: ${suggestionId} | Powered by Arigo`,
-iconURL: interaction.client.user.displayAvatarURL()
-  })
+//     embed.setFooter({
+//   text: `ID: ${suggestionId} | Powered by Arigo`,
+// iconURL: interaction.client.user.displayAvatarURL()
+//   })
   logChannel.send({ embeds: [embed], fetchReply: true }).then(function (message) {
     message.react("👍")
     message.react("🤷")
