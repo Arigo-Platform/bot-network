@@ -1038,5 +1038,5 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
   const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
   client.login(tokenValue.data().token);
-// client.login(token)
+// client.login(token) - For dev
 })()
