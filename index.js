@@ -59,6 +59,7 @@ const db = new Firestore({
 const getPort = db.collection('bots').doc(`${guildId}`)
 const portValue = await getPort.get();
 const port = portValue.data().port
+// const port = '4000'
 
 
 
@@ -376,6 +377,7 @@ client.on('guildMemberAdd', async member => {
       const descriptionFour = descriptionThree.replaceAll("{username}", `${member.user.username}`);
       const descriptionFive = descriptionFour.replaceAll("/n", `\n`);
       const finalDescription = descriptionFive
+      const guildForColorWelcome = client.guilds.cache.get(guildId)
 
       console.log({ 
         1: finalTitle,
@@ -391,7 +393,7 @@ client.on('guildMemberAdd', async member => {
   // text: "Designed by Arigo",
   // iconURL: "https://cdn.arigoapp.com/logo"
   // }),
-    welcomeembed.setColor("#ed1d24")
+    welcomeembed.setColor(guildForColorWelcome.members.me.displayColor)
     // welcomeembed.setTimestamp()
     client.channels.cache.get(`${capturedChannel}`).send({ content: `<@${member.user.id}>,`, embeds: [welcomeembed] })
 });
@@ -670,6 +672,7 @@ client.on('interactionCreate', async interaction => {
     // embed.setTimestamp()
 	try {
 		await command.execute(interaction, embed, db, events, Sentry);
+
 	} catch (error) {
 		console.error('Error', error);
 		return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
@@ -974,10 +977,14 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 // Deploy New Reaction Roles
-app.get('/bot/push/role-menu/:id/', async (req, res) => {
+app.get('/bot/push/role-menu/:id', async (req, res) => {
+  // http://localhost:4000/bot/push/role-menu/${menuId}
     // Get in database
     const getNotifications = db.collection('bots').doc(`${guildId}`).collection('notifications').doc(req.params.id)
     const notifications = await getNotifications.get();
+
+    // Get HEX Color
+    const guildForColorRoleMenu = client.guilds.cache.get(guildId)
     // Create embed
     const newReactionRoleEmbed = new EmbedBuilder()
     newReactionRoleEmbed.setTitle(`${notifications.data().embed_title}`) 
@@ -986,21 +993,24 @@ app.get('/bot/push/role-menu/:id/', async (req, res) => {
     // text: "Designed by Arigo",
     // iconURL: "https://cdn.arigoapp.com/logo"
     // }),
-    newReactionRoleEmbed.setColor("#ed1d24")
+    newReactionRoleEmbed.setColor(guildForColorRoleMenu.members.me.displayColor)
+  
 
     // Button
     const newReactionRoleRow = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
-        .setLabel('Modify Notifications')
+        .setLabel('Modify Roles')
         .setStyle(ButtonStyle.Secondary)
         .setCustomId(`reaction_role_${req.params.id}`)
         .setEmoji('🔔')
 			)
+      
     client.channels.cache.get(`${notifications.data().channelId}`).send({ embeds: [newReactionRoleEmbed], components: [newReactionRoleRow] }).then(msg => {
 
     })
-    return res.status(200).json('Success')
+    res.send('Success')
+    return   console.log("Successfully Created Role Menu", req.params.id)
 
 })
 // Get New Bot Creation DM
@@ -1022,7 +1032,7 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
       const toSendToOwnerEmbed = new EmbedBuilder()
       toSendToOwnerEmbed.setTitle("Hey itilva8630, it's lovely to meet you! :wave:")
       toSendToOwnerEmbed.setDescription("This notification is to let you know that you've successfully setup your bot in `Arigo Community`, we'd like to welcome you to the Arigo family. We're here to provide you the tools your community needs to operate efficiently and better than ever.\n\nArigo provides industry-leading onboarding tools to get you started using our incredibly diverse platform. Feel free to reach out to your Account Executive, **Ishaan**, via email at ``ishaan@arigoapp.com`` if you need anything.")
-      toSendToOwnerEmbed.setColor("#5066c2")
+      toSendToOwnerEmbed.setColor(interaction.guild.members.me.displayColor)
       toSendToOwnerEmbed.setImage('https://cdn.discordapp.com/attachments/819650597803393074/1020809031788539994/Hello_There.png')
       owner.send({ embeds: [toSendToOwnerEmbed], components: [row2] })
 
@@ -1038,5 +1048,5 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
   const getToken = db.collection('bots').doc(`${guildId}`)
   const tokenValue = await getToken.get();
   client.login(tokenValue.data().token);
-// client.login(token) - For dev
+// client.login(token)
 })()
