@@ -3,15 +3,15 @@ const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-const guildId = process.env["guildId"]
-const clientId = process.env["clientId"]
-const environment = 'production'
+// const guildId = process.env["guildId"]
+// const clientId = process.env["clientId"]
+// const environment = 'production'
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
-// const guildId = '864016187107966996'
-// const clientId = '952310761869410455'
-// const environment = 'development'
+const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
+const guildId = '864016187107966996'
+const clientId = '952310761869410455'
+const environment = 'development'
 //----
 const express = require('express')
 const app = express()
@@ -56,10 +56,10 @@ const db = new Firestore({
   projectId: 'arigo-platform',
   keyFilename: 'key.json',
 });
-const getPort = db.collection('bots').doc(`${guildId}`)
-const portValue = await getPort.get();
-const port = portValue.data().port
-// const port = '4000'
+// const getPort = db.collection('bots').doc(`${guildId}`)
+// const portValue = await getPort.get();
+// const port = portValue.data().port
+const port = '4000'
 
 
 
@@ -671,7 +671,7 @@ client.on('interactionCreate', async interaction => {
     embed.setColor(interaction.guild.members.me.displayColor)
     // embed.setTimestamp()
 	try {
-		await command.execute(interaction, embed, db, events, Sentry);
+		await command.execute(interaction, embed, db, events, Sentry, client);
 
 	} catch (error) {
 		console.error('Error', error);
@@ -749,6 +749,19 @@ client.on(Events.InteractionCreate, async interaction => {
   
    interaction.reply({ embeds: [reactionRoleEmbed], components: [row], ephemeral: true })
 });
+
+// client.on(Events.MessageCreate, async interaction => {
+//   var nono = [
+//     '617485103991488534',
+//   ]
+//   nono.forEach(word => {
+//     if(interaction.author.id.includes(word)) {
+//       interaction.delete()
+//       client.channels.cache.get(`996893224570454058`).send({ content: `i think not, gabby`})
+//     }
+//   })
+ 
+// })
 
 // Respond to Reaction Role Modifications
 client.on(Events.InteractionCreate, async interaction => {
@@ -1045,8 +1058,8 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-  const getToken = db.collection('bots').doc(`${guildId}`)
-  const tokenValue = await getToken.get();
-  client.login(tokenValue.data().token);
-// client.login(token)
+  // const getToken = db.collection('bots').doc(`${guildId}`)
+  // const tokenValue = await getToken.get();
+  // client.login(tokenValue.data().token);
+client.login(token)
 })()

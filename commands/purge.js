@@ -34,6 +34,12 @@ module.exports = {
     let logChannel = interaction.guild.channels.cache.get( doc2.data().id)
     // See if they have the General Moderator role
      if(interaction.member.roles.cache.has(doc.data().id) === true) {
+      if(amount > 100) {
+        embed.setTitle("😞 Purge Limit Reached")
+        embed.setDescription("You're only able to puge 100 messages at a time, due to the Discord API.")
+        embed.setColor("Red")
+        return interaction.reply({ embeds: [embed], ephemeral: true })
+      }
         // See if the amount if valid
         if (amount >= 1) {
             channel.bulkDelete(amount, true)

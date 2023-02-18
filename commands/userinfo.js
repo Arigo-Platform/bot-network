@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, time } = require('discord.js');
 const { Client, Collection, Intents } = require('discord.js');
 const { string } = require('mathjs');
 module.exports = {
@@ -11,10 +11,9 @@ module.exports = {
                 .setRequired(true)),
   
 	async execute(interaction, embed, db, events, Sentry) {
-    console.log("??")
-    // try {
+    try {
     // Define the Var
-    const user = interaction.options.getMember('user');
+    const user = interaction.options.getMember('user'); 
     
     const userId = user.user.id
     const serverId = user.guild.id
@@ -30,12 +29,16 @@ module.exports = {
     } else {
       roles = user._roles.map(olddata => `<@&${olddata}>`)
     }
-    console.log("User ID", user.id)
-    console.log("Nickname", nickname)
-    console.log("Join Timestamp", parseInt(user.guild.joinedTimestamp / 1000, 10))
-    console.log("Join Date", parseInt(user.joinedTimestamp / 1000, 10))
-    console.log("Roles", roles)
-    console.log("Avatar", `https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`)
+    // Server Join Date
+    var myDateServer = new Date(user.joinedAt);    
+    const dateServer = new Date(myDateServer.toGMTString());
+    const timeStringServer = time(dateServer);
+    
+    // Discord Join Date
+    var myDateDiscord = new Date(user.user.createdAt);    
+    const dateDiscord = new Date(myDateDiscord.toGMTString());
+    const timeStringDiscord = time(dateDiscord);
+
     embed.setTitle(`User Information for ${user.user.username}#${user.user.discriminator}`)
     
     embed.addFields(
@@ -43,21 +46,23 @@ module.exports = {
 
       { name: 'Server Nickname 👤', value: `${nickname}`, inline: true },
 
-      { name: 'Server Join Date ⏰', value: `<t:${parseInt(user.guild.joinedTimestamp / 1000, 10)}> `, inline: true },
+      { name: ' ', value: ` `, inline: false },
 
-      { name: 'Discord Join Date 🕰️', value: `<t:${parseInt(user.joinedTimestamp / 1000, 10)}> `, inline: true },
+      { name: 'Server Join Date ⏰', value: `${timeStringServer}`, inline: true },
 
-      { name: 'Server Roles  👥', value: `${roles}`, inline: true }
+      { name: 'Discord Join Date 🕰️', value: `${timeStringDiscord}`, inline: true },
+
+      { name: 'Server Roles  👥', value: `${roles}`, inline: false }
 
     
 	)
     .setThumbnail(`https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`)
     interaction.reply({ embeds: [embed ]})
     events.info('Userinfo', { user: `${userId}`, infoUser: `${user.user.id}`, serverId: `${serverId}` });
-  // } catch (e) {
-  //   Sentry.captureException(e);
-  //   console.log('Error in userinfo command', e)
+  } catch (e) {
+    Sentry.captureException(e);
+    console.log('Error in userinfo command', e)
 
-  // }
+  }
   }
 }
