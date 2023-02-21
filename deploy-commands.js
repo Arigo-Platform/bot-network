@@ -107,12 +107,12 @@ const rest = new REST({ version: '9' }).setToken(token);
 		console.error(error);
 	}
 
-			const webhookInfo = {
-				id: '1058385208623251488',
-				token: 'ZjYqjMcdwETGJmfXJMkt1OR3FqujFJAn-_Ik3bOeQn6ceEhC9-EWqWJkdG50lZTH2Q4Z'
-			}
-			const webhook = new WebhookClient(webhookInfo);
-			webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
-			.then(message => console.log(`Sent message: ${message.content}`))
-			.catch(console.error);
+	const webhookInfo = {
+		id: '1058385208623251488',
+		token: 'ZjYqjMcdwETGJmfXJMkt1OR3FqujFJAn-_Ik3bOeQn6ceEhC9-EWqWJkdG50lZTH2Q4Z'
+	}
+	const webhook = new WebhookClient(webhookInfo);
+	webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
+	.then(message => console.log(`Sent message: ${message.content}`))
+	.catch(console.error);
 })();
