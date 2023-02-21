@@ -1,4 +1,5 @@
 (async () => {
+console.log("In File")
 const clientId = process.env["clientId"]
 const guildId = process.env["guildId"]
 // const clientId = '952310761869410455'
@@ -6,7 +7,6 @@ const guildId = process.env["guildId"]
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
 const axios = require('axios');
 const {Firestore} = require('@google-cloud/firestore');
-const firestore = new Firestore();
 const db = new Firestore({
 projectId: 'arigo-platform',
 keyFilename: 'key.json',
@@ -115,4 +115,5 @@ const rest = new REST({ version: '9' }).setToken(token);
 	webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
 	.then(message => console.log(`Sent message: ${message.content}`))
 	.catch(console.error);
+	console.log("Finished")
 })();
