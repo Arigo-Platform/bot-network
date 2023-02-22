@@ -3,20 +3,16 @@ const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-const guildId = process.env["guildId"]
-const clientId = process.env["clientId"]
-const environment = 'production'
+// const guildId = process.env["guildId"]
+// const clientId = process.env["clientId"]
+// const environment = 'production'
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
-// const guildId = '864016187107966996'
-// const clientId = '952310761869410455'
-// const environment = 'development'
+const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
+const guildId = '864016187107966996'
+const clientId = '952310761869410455'
+const environment = 'development'
 
-// const token = 'MTA3NzcxMjkxMjk5NjY0NzAzMg.GtGWtH.jbckM_87mv1VWip3rV78Q1aY5_AC58mQ2GZA5s'
-// const guildId = '970446611874467930'
-// const clientId = '1077712912996647032'
-// const environment = 'development'
 
 //----
 const express = require('express')
@@ -133,8 +129,8 @@ for (const file of commandFiles) {
 }
 client.once('ready', async () => {
   // Node Deploy Commands (deploy-commands).js
-  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
-  console.log(`Output: ${output}`);
+  // const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  // console.log(`Output: ${output}`);
   
   const row = new ActionRowBuilder()
 			.addComponents(
@@ -1041,8 +1037,7 @@ client.on(Events.InteractionCreate, async interaction => {
   // console.log("Selected", interaction.values)
   var selectedRoles = []
   selectedRoles = selected.split(',');
-  console.log("selectedRoles Value", selectedRoles)
-  console.log("INtercom Thing", interaction.values)
+  
 
   // Set Pre-Selected Roles
   var preSelected = []
@@ -1051,12 +1046,12 @@ client.on(Events.InteractionCreate, async interaction => {
   interaction.component.options.map(role => {
     preSelected.push(role.value)
   })
-  console.log("preSelected Value", preSelected.length)
   
-    var RemoveAll = function() {
+    var RemoveAll = function(callback) {
       preSelected.forEach(role => {
         member.roles.remove(`${role}`).catch(err => { console.log("Was unable to remove all roles:", preSelected )})
-      })
+      }, 1000);
+      callback();
     }
   
   var AddAll = function() {
@@ -1066,7 +1061,7 @@ client.on(Events.InteractionCreate, async interaction => {
        // update at the start
       //  selectedRoles = []
       //  selectedRoles.push(role)
-     })
+    }, 1000);
   }
   if(selectedRoles.length === 1) {
     if(selectedRoles[0].length > 5) {
@@ -1087,12 +1082,14 @@ client.on(Events.InteractionCreate, async interaction => {
   //       RemovereactionRoleEmbed.setColor("#ed1d24")
   //     interaction.reply({ embeds: [RemovereactionRoleEmbed], ephemeral: true })
   // } else {
-  RemoveAll()
-  AddAll()
+
+RemoveAll(AddAll)
+
+  // AddAll()
   // Reply Successfully
   const AddreactionRoleEmbed = new EmbedBuilder()
     AddreactionRoleEmbed.setTitle(`✅ Roles Successfully Updated`) 
-    AddreactionRoleEmbed.setDescription(`I've successfully updated your roles accordingly.`)
+    AddreactionRoleEmbed.setDescription(`Your roles will be updated momentarily.`)
     // AddreactionRoleEmbed.setFooter({
     //   text: "Designed by Arigo",
     //   iconURL: "https://cdn.arigoapp.com/logo"
@@ -1322,8 +1319,8 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-  const getToken = db.collection('bots').doc(`${guildId}`)
-  const tokenValue = await getToken.get();
-  client.login(tokenValue.data().token);
-// client.login(token)
+  // const getToken = db.collection('bots').doc(`${guildId}`)
+  // const tokenValue = await getToken.get();
+  // client.login(tokenValue.data().token);
+client.login(token)
 })()
