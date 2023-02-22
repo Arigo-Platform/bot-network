@@ -1,5 +1,4 @@
 (async () => {
-console.log("In File")
 const clientId = process.env["clientId"]
 const guildId = process.env["guildId"]
 // const clientId = '952310761869410455'
@@ -87,7 +86,6 @@ enabled.forEach(enabled => {
 	commandFiles.filter(file => file.startsWith(enabled))
 })
 	
-console.log('Enabled commands', enabled)
 
 for (const file of enabled) {
 	const command = require(`./commands/${file}`);
@@ -115,5 +113,4 @@ const rest = new REST({ version: '9' }).setToken(token);
 	webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
 	.then(message => console.log(`Sent message: ${message.content}`))
 	.catch(console.error);
-	console.log("Finished")
 })();

@@ -12,6 +12,12 @@ const environment = 'production'
 // const guildId = '864016187107966996'
 // const clientId = '952310761869410455'
 // const environment = 'development'
+
+// const token = 'MTA3NzcxMjkxMjk5NjY0NzAzMg.GtGWtH.jbckM_87mv1VWip3rV78Q1aY5_AC58mQ2GZA5s'
+// const guildId = '970446611874467930'
+// const clientId = '1077712912996647032'
+// const environment = 'development'
+
 //----
 const express = require('express')
 const app = express()
@@ -127,8 +133,8 @@ for (const file of commandFiles) {
 }
 client.once('ready', async () => {
   // Node Deploy Commands (deploy-commands).js
-  // const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
-  // console.log(`Output: ${output}`);
+  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  console.log(`Output: ${output}`);
   
   const row = new ActionRowBuilder()
 			.addComponents(
@@ -972,7 +978,10 @@ client.on(Events.InteractionCreate, async interaction => {
       array.push({ label: `${doc.data().title}`, description: `${doc.data().description}`, value: `${doc.id}`, default: false })
     }
   })
- 
+  if(cID[cID.length -1] === ',') {
+    cID = cID.slice(0, cID.length -1)
+    cID = cID.slice(0, 30)
+  }
   if(cID.length === 0) {
     cID = ','
   }
@@ -980,7 +989,7 @@ client.on(Events.InteractionCreate, async interaction => {
   .addComponents(
     new StringSelectMenuBuilder()
       // .setCustomId(`select_${id}`)
-      .setCustomId(cID)
+      .setCustomId('role-menus')
       .setPlaceholder('Nothing selected')
       .setMinValues(0)
       .setMaxValues(array.length)       
@@ -988,7 +997,7 @@ client.on(Events.InteractionCreate, async interaction => {
   );
   const modifyRolesEmbedColor = client.guilds.cache.get(guildId)
   const reactionRoleEmbed = new EmbedBuilder()
-  reactionRoleEmbed.setTitle(`🔔 | Modify Roles`) 
+  reactionRoleEmbed.setTitle(`🔔 Modify Roles`) 
   reactionRoleEmbed.setDescription(`Use the menu below to modify your roles for this menu.`)
   // reactionRoleEmbed.setFooter({
   //   text: "Designed by Arigo",
@@ -1022,21 +1031,27 @@ client.on(Events.InteractionCreate, async interaction => {
   const member = await interaction.guild.members.fetch(interaction.user.id)
   const values = interaction.values[0]
   const roles = interaction.member.roles.cache
-
   // Get User Roles
   var userRoles = []
   roles.map(role => {
     userRoles.push(role.id)
   })
 
-  // Set Currently Selected Roles
+  // console.log("All", interaction.component.options)
+  // console.log("Selected", interaction.values)
   var selectedRoles = []
   selectedRoles = selected.split(',');
+  console.log("selectedRoles Value", selectedRoles)
+  console.log("INtercom Thing", interaction.values)
 
   // Set Pre-Selected Roles
   var preSelected = []
-  preSelected = id.split(',');
-  preSelected.pop()
+  // preSelected = id.split(',');
+  // preSelected.pop()
+  interaction.component.options.map(role => {
+    preSelected.push(role.value)
+  })
+  console.log("preSelected Value", preSelected.length)
   
     var RemoveAll = function() {
       preSelected.forEach(role => {
@@ -1047,9 +1062,10 @@ client.on(Events.InteractionCreate, async interaction => {
   var AddAll = function() {
     selectedRoles.forEach(role => {
       member.roles.add(`${role}`).catch(err => { console.log("Was unable to add a role", role )})
+      console.log("Added", role)
        // update at the start
-       selectedRoles = []
-       selectedRoles.push(role)
+      //  selectedRoles = []
+      //  selectedRoles.push(role)
      })
   }
   if(selectedRoles.length === 1) {
