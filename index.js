@@ -3,15 +3,15 @@ const fs = require('fs');
 const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-// const guildId = process.env["guildId"]
-// const clientId = process.env["clientId"]
-// const environment = 'production'
+const guildId = process.env["guildId"]
+const clientId = process.env["clientId"]
+const environment = 'production'
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
-const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
-const guildId = '864016187107966996'
-const clientId = '952310761869410455'
-const environment = 'development'
+// const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
+// const guildId = '864016187107966996'
+// const clientId = '952310761869410455'
+// const environment = 'development'
 
 
 //----
@@ -129,8 +129,8 @@ for (const file of commandFiles) {
 }
 client.once('ready', async () => {
   // Node Deploy Commands (deploy-commands).js
-  // const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
-  // console.log(`Output: ${output}`);
+  const output = execSync('node deploy-commands.js', { encoding: 'utf-8' });
+  console.log(`Output: ${output}`);
   
   const row = new ActionRowBuilder()
 			.addComponents(
@@ -1319,8 +1319,8 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
  
 })
 
-  // const getToken = db.collection('bots').doc(`${guildId}`)
-  // const tokenValue = await getToken.get();
-  // client.login(tokenValue.data().token);
-client.login(token)
+  const getToken = db.collection('bots').doc(`${guildId}`)
+  const tokenValue = await getToken.get();
+  client.login(tokenValue.data().token);
+// client.login(token)
 })()
