@@ -1,6 +1,6 @@
 (async() => {
 const fs = require('fs');
-const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence } = require('discord.js');
+const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence, WebhookClient } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 const guildId = process.env["guildId"]
@@ -1287,6 +1287,78 @@ app.get('/bot/push/role-menu/:id', async (req, res) => {
     res.send('Success')
     return console.log("Successfully Created Role Menu", req.params.id)
 })
+// Send Cancelation Notice
+app.get('/bot/billing/subscription-ended', async (req, res) => {
+  const getServer = client.guilds.fetch(guildId).then(done => {
+    client.users.fetch(done.ownerId).then(owner => {
+      const webhookInfo = {
+        id: '1078785448505253898',
+        token: 'SdiXtmE6B2NQJu79RBbeF_AulnEQYRsZjGft5gw3RtBas-sTIA4dKjDxmi4GzuweMrwo'
+      }
+      const webhook = new WebhookClient(webhookInfo);
+      // Create Buttons
+      // const billingRequiredRow = new ActionRowBuilder()
+			// .addComponents(
+			// 	new ButtonBuilder()
+      //   .setLabel('Billing Portal')
+      //   .setStyle(ButtonStyle.Link)
+      //   .setURL('https://google.com')
+      //   .setEmoji('🏦')
+			// )
+      
+      // Create Embed
+      const paymentRequiredEmbed = new EmbedBuilder()
+      paymentRequiredEmbed.setTitle("We're sad to see you go 😔")
+      paymentRequiredEmbed.setDescription(`Hey, ${owner.username}! :wave:\n\nThis is just a notification from Arigo to let you know that your subscription has successfully been canceled. Due to this, your workspace & bot data has been deleted. Within the next few minutes, I'll go offline.\n\nWe're truly sad to see you go and hope your community enjoyed using Arigo.\n\nIf you need anything, don't hesitate to reach out to us via the [live chat](https://support.arigoapp.com) or email at ` + "``support@arigoapp.com``.")
+      paymentRequiredEmbed.setColor('Red')
+      owner.send({ embeds: [paymentRequiredEmbed] }).then(done => {
+       webhook.send("Guild ``" +  guildId + "`` has sucessfully notified the server owner " + `(${owner.id}) about a the canceled subscription.`)
+      }).catch(err => {
+        webhook.send("Guild ``" +  guildId + "`` has **failed to notify** the server owner " + `(${owner.id}) about the canceled subscription.`)
+      })
+      
+      // Send back
+      res.status(200).json('Success')
+
+    }).catch(err => { console.log("Error!!!", err) })
+  })
+})
+// Send Billing Action Needed DM
+app.get('/bot/billing/payment-required', async (req, res) => {
+  const getServer = client.guilds.fetch(guildId).then(done => {
+    client.users.fetch(done.ownerId).then(owner => {
+      const webhookInfo = {
+        id: '1078785448505253898',
+        token: 'SdiXtmE6B2NQJu79RBbeF_AulnEQYRsZjGft5gw3RtBas-sTIA4dKjDxmi4GzuweMrwo'
+      }
+      const webhook = new WebhookClient(webhookInfo);
+      // Create Buttons
+      const billingRequiredRow = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+        .setLabel('Billing Portal')
+        .setStyle(ButtonStyle.Link)
+        .setURL('https://google.com')
+        .setEmoji('🏦')
+			)
+      
+      // Create Embed
+      const paymentRequiredEmbed = new EmbedBuilder()
+      paymentRequiredEmbed.setTitle("Arigo Payment Required ⚠️")
+      paymentRequiredEmbed.setDescription(`Hello, ${owner.username}! :wave:\n\nThis is a **critical notification from Arigo** to notify you that your workspace & bot are scheduled for deletion within the next 24 hours because **there was an error processing your payment**. Please visit our billing portal to ensure that this months invoice is paid to avoid your workspace & bot being permanently deleted.\n\nArigo is unable to restore deleted workspaces or bots and those entities will need to be recreated.\n\nPlease direct any questions to us via the [live chat](https://support.arigoapp.com) or email at ` + "``accounts@arigoapp.com``.")
+      paymentRequiredEmbed.setColor('Red')
+      owner.send({ embeds: [paymentRequiredEmbed], components: [billingRequiredRow] }).then(done => {
+       webhook.send("Guild ``" +  guildId + "`` has sucessfully notified the server owner " + `(${owner.id}) about a payment needed.`)
+      }).catch(err => {
+        webhook.send("Guild ``" +  guildId + "`` has **failed to notify** the server owner " + `(${owner.id}) about a payment needed.`)
+      })
+      
+      // Send back
+      res.status(200).json('Success')
+
+    }).catch(err => { console.log("Error!!!", err) })
+  })
+})
 // Get New Bot Creation DM
 app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
   // Get the Server
@@ -1314,9 +1386,7 @@ app.get('/bot/push/new-bot/dm-owner/:serverId', (req, res) => {
       res.send('DM Successfully Sent')
 
     })
-
   })
- 
 })
 
   const getToken = db.collection('bots').doc(`${guildId}`)
