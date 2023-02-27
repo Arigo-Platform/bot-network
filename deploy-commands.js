@@ -1,6 +1,6 @@
-(async () => {
-const clientId = process.env["clientId"]
-const guildId = process.env["guildId"]
+module.exports = async function deploy(clientId, guildId, token) {
+	// const clientId = process.env["clientId"]
+// const guildId = process.env["guildId"]
 // const clientId = '952310761869410455'
 // const guildId = '864016187107966996'
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
@@ -10,9 +10,6 @@ const db = new Firestore({
 projectId: 'arigo-platform',
 keyFilename: 'key.json',
 });
-const getToken = db.collection('bots').doc(`${guildId}`)
-  const tokenValue = await getToken.get();
-  const token = await tokenValue.data().token
 
 const fs = require('fs');
 const { REST, SlashCommandBuilder, Routes, WebhookClient } = require('discord.js');
@@ -26,6 +23,7 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 var enabled = [
 	'help'
 ]
+
 // Moderation Module
 const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('moderation');
 	const doc = await data.get();
@@ -113,4 +111,4 @@ const rest = new REST({ version: '9' }).setToken(token);
 	webhook.send("Client ``" +  clientId + "`` located in Guild ``" + guildId + "`` has been successfully restarted.")
 	.then(message => console.log(`Sent message: ${message.content}`))
 	.catch(console.error);
-})();
+};
