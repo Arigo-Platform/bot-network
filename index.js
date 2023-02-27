@@ -119,14 +119,13 @@ let bots;
 if (environment === 'production') {
   bots = await db.collection('bots').get()
 } else {
-  bots = [await db.collection('bots').doc('864016187107966996').get()] // node fuckery lol
+  bots = [await db.collection('bots').doc('864016187107966996').get(), await db.collection('bots').doc('962844631165456471').get()] // node fuckery lol
 }
 
 const botMap = new Map()
 
 bots.forEach(async b => {
   const bot = b.data()
-  console.log(bot)
   const client = new Client({ intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -698,7 +697,6 @@ bots.forEach(async b => {
       embed.setColor(interaction.guild.members.me.displayColor)
       // embed.setTimestamp()
     try {
-      console.log(interaction)
       await command.execute(interaction, embed, db, events, Sentry, client);
   
     } catch (error) {
