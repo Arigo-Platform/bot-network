@@ -28,18 +28,18 @@ const discordTranscripts = require('discord-html-transcripts');
         // or use es6 import statements
         // import * as Sentry from '@sentry/node';
         
+        const SentryCore = require("@sentry/core");
+        
         const Tracing = require("@sentry/tracing");
         // or use es6 import statements
         // import * as Tracing from '@sentry/tracing';
-        
+
         Sentry.init({
           dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
           environment: environment,
           tracesSampleRate: 1.0,
-          // Set tracesSampleRate to 1.0 to capture 100%
-          // of transactions for performance monitoring.
-          // We recommend adjusting this value in production
-        });
+        })
+
         // Sentry.setContext("Bot Information", {
         //   guildId: guildId,
         //   clientId: clientId,
@@ -48,10 +48,10 @@ const discordTranscripts = require('discord-html-transcripts');
         // Sentry.setTag("clientId", clientId);
 
 
-        const transaction = Sentry.startTransaction({
-          op: "bot-network",
-          name: "Arigo Bot Network",
-        });
+        // const transaction = Sentry.startTransaction({
+        //   op: "bot-network",
+        //   name: "Arigo Bot Network",
+        // });
   // Database
 const {Firestore} = require('@google-cloud/firestore');
 const firestore = new Firestore();
@@ -113,7 +113,6 @@ module.exports = events;
 // })
 
 // Get all the bots here, then forEach through them with the code below (creating a new client, initing commands, etc)
-console.log(environment)
 let bots;
 
 if (environment === 'production') {
@@ -135,13 +134,32 @@ bots.forEach(async b => {
   client.commands = new Collection();
   const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
   
+  client.Sentry = new Sentry.NodeClient({
+    dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
+    environment: environment,
+    tracesSampleRate: 1.0,
+  })
+
+  client.Sentry.setContext("Bot Information", {
+    guildId: guildId,
+    clientId: clientId,
+  });
+  client.Sentry.setTag("guildId", b.id);
+  client.Sentry.setTag("clientId", client.user.id);
+
   for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.data.name, command);
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    await deployCommands(client.user.id, b.id, bot.token)
+    // await deployCommands(client.user.id, b.id, bot.token)
+    
+    Sentry.addBreadcrumb({
+      botId: b.id,
+    })
+
+    throw new Error('test')
     
     const row = new ActionRowBuilder()
         .addComponents(
