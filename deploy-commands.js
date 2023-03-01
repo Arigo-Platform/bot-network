@@ -125,13 +125,13 @@ const rest = new REST({ version: '9' }).setToken(token);
 	.catch(console.error);
 };
 
-// get cli args
-const args = process.argv.slice(2);
-const clientId = args[0];
-const guildId = args[1];
-const token = args[2];
+// // get cli args
+// const args = process.argv.slice(2);
+// const clientId = args[0];
+// const guildId = args[1];
+// const token = args[2];
 
-// run the function
-deploy(clientId, guildId, token);
+// // run the function
+// deploy(clientId, guildId, token);
 
 module.exports = deploy;
