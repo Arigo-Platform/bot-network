@@ -102,9 +102,9 @@ const events = createLogger({
 
 module.exports = events;
 
-// app.get('/', (req, res) => {
-//   res.send('Server Not Found - Key Missing')
-// })
+app.get('/', (req, res) => {
+  res.send('Server Not Found - Key Missing')
+})
 
 
 app.listen(port, () => {
