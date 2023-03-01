@@ -27,10 +27,6 @@ var enabled = [
 // Moderation Module
 const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('moderation');
 	const doc = await data.get();
-	console.log(`Moderation data for ${guildId}`, {
-		data: doc.data(),
-		status: doc.data().status
-	})
 	if(doc.data().status === 'enabled') {
 	  enabled.push('unban', 'ban', 'case', 'kick', 'slowmode', 'timeout', 'warn', 'purge')
 	} else if(doc.data().status === 'disabled') {
@@ -52,10 +48,6 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	// Suggestion Module
 	const dataSuggestion = db.collection('bots').doc(`${guildId}`).collection('modules').doc('suggestion');
 	const suggestionDoc = await dataSuggestion.get();
-	console.log(`Suggestion data for ${guildId}`, {
-		data: suggestionDoc.data(),
-		status: suggestionDoc.data().status
-	})
 	if(suggestionDoc.data().status === 'enabled') {
 	  enabled.push('suggest', 'modifysuggestion')
 	} else if(suggestionDoc.data().status === 'disabled') {
@@ -71,10 +63,6 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	// Utility Module
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
-	console.log(`Utility data for ${guildId}`, {
-		data: utilityDoc.data(),
-		status: utilityDoc.data().status
-	})
 	if(utilityDoc.data().status === 'enabled') {
 	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
 	} else if(utilityDoc.data().status === 'disabled') {
@@ -125,13 +113,13 @@ const rest = new REST({ version: '9' }).setToken(token);
 	.catch(console.error);
 };
 
-// get cli args
-const args = process.argv.slice(2);
-const clientId = args[0];
-const guildId = args[1];
-const token = args[2];
+// // get cli args
+// const args = process.argv.slice(2);
+// const clientId = args[0];
+// const guildId = args[1];
+// const token = args[2];
 
-// run the function
-deploy(clientId, guildId, token);
+// // run the function
+// deploy(clientId, guildId, token);
 
 module.exports = deploy;
