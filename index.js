@@ -1377,7 +1377,7 @@ app.get('/bot/:botId/billing/payment-required', async (req, res) => {
         new ButtonBuilder()
         .setLabel('Billing Portal')
         .setStyle(ButtonStyle.Link)
-        .setURL('https://google.com')
+        .setURL('https://billing.stripe.com/p/login/7sI14EbeD34x0ms6oo')
         .setEmoji('🏦')
       )
       
