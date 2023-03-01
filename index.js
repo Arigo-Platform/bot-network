@@ -237,7 +237,7 @@ bots.forEach(async b => {
   //     .catch((err) => {
   //       console.log(err.message);
   //     });
-    console.log('Ready!');
+    console.log(`Ready for guild ${b.id}!`);
   
       // Get status & update
       const cityReff = db.collection('bots').doc(`${b.id}`).collection('settings').doc(`appearance`);
