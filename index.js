@@ -134,18 +134,18 @@ bots.forEach(async b => {
   client.commands = new Collection();
   const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
   
-  client.Sentry = new Sentry.NodeClient({
-    dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
-    environment: environment,
-    tracesSampleRate: 1.0,
-  })
+  // client.Sentry = new Sentry.NodeClient({
+  //   dsn: "https://6a44c1853d94409a908ebbf48c5bde32@o4504084672610304.ingest.sentry.io/4504085017133056",
+  //   environment: environment,
+  //   tracesSampleRate: 1.0,
+  // })
 
-  client.Sentry.setContext("Bot Information", {
-    guildId: guildId,
-    clientId: clientId,
-  });
-  client.Sentry.setTag("guildId", b.id);
-  client.Sentry.setTag("clientId", client.user.id);
+  // client.Sentry.setContext("Bot Information", {
+  //   guildId: guildId,
+  //   clientId: clientId,
+  // });
+  // client.Sentry.setTag("guildId", b.id);
+  // client.Sentry.setTag("clientId", client.user.id);
 
   for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
@@ -153,13 +153,7 @@ bots.forEach(async b => {
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    await deployCommands(client.user.id, b.id, bot.token)
-    
-    Sentry.addBreadcrumb({
-      botId: b.id,
-    })
-
-    throw new Error('test')
+    // await deployCommands(client.user.id, b.id, bot.token)
     
     const row = new ActionRowBuilder()
         .addComponents(
@@ -243,7 +237,7 @@ bots.forEach(async b => {
   //     .catch((err) => {
   //       console.log(err.message);
   //     });
-    console.log('Ready!');
+    console.log(`Ready for guild ${b.id}!`);
   
       // Get status & update
       const cityReff = db.collection('bots').doc(`${b.id}`).collection('settings').doc(`appearance`);

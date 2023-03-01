@@ -1,4 +1,4 @@
-module.exports = async function deploy(clientId, guildId, token) {
+async function deploy(clientId, guildId, token) {
 	// const clientId = process.env["clientId"]
 // const guildId = process.env["guildId"]
 // const clientId = '952310761869410455'
@@ -124,3 +124,14 @@ const rest = new REST({ version: '9' }).setToken(token);
 	.then(message => console.log(`Sent message: ${message.content}`))
 	.catch(console.error);
 };
+
+// get cli args
+const args = process.argv.slice(2);
+const clientId = args[0];
+const guildId = args[1];
+const token = args[2];
+
+// run the function
+deploy(clientId, guildId, token);
+
+module.exports = deploy;
