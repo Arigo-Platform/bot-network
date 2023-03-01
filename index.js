@@ -107,8 +107,8 @@ app.get('/', (req, res) => {
 })
 
 
-app.listen(port, () => {
-  console.log(`Arigo listening on port ${port}`)
+app.listen(4000, () => {
+  console.log(`Arigo listening on port 4000`)
 })
 
 // Get all the bots here, then forEach through them with the code below (creating a new client, initing commands, etc)
