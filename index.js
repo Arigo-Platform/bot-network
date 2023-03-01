@@ -67,7 +67,7 @@ const storage = new Storage({
 // const getPort = db.collection('bots').doc(`${guildId}`)
 // const portValue = await getPort.get();
 // const port = portValue.data().port
-// const port = '4000'
+const port = '5000' 
 
 
 
