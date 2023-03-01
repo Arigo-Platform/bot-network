@@ -153,7 +153,7 @@ bots.forEach(async b => {
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    // await deployCommands(client.user.id, b.id, bot.token)
+    await deployCommands(client.user.id, b.id, bot.token)
     
     const row = new ActionRowBuilder()
         .addComponents(
