@@ -74,6 +74,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'say',
 		'userinfo',
 		'8ball',
+		// 'suggestedreply'
 		  ]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))

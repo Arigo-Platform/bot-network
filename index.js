@@ -1,6 +1,6 @@
 (async() => {
 const fs = require('fs');
-const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence, WebhookClient } = require('discord.js');
+const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, ActionRowBuilder, GatewayIntentBits, Client, EmbedBuilder, Collection, Partials, Events, StringSelectMenuBuilder, Presence, WebhookClient, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 // const guildId = process.env["guildId"]
@@ -237,6 +237,45 @@ bots.forEach(async b => {
   //       console.log(err.message);
   //     });
     console.log(`Ready for guild ${b.id}!`);
+    if(b.id === '864016187107966996') {
+  // Get HEX Color
+  const guildForColorRoleMenu = client.guilds.cache.get('864016187107966996')
+  // Create embed
+  const newTicketMenuEmbed = new EmbedBuilder()
+  newTicketMenuEmbed.setTitle(`🧑‍💻 Caffable 24/7 Support`) 
+  newTicketMenuEmbed.setDescription(`Please choose your inquiry from the panels below to contact our 24/7 Support Team. We will get back to you as soon as possible.\n\n> :flag_us: <@473903419497775114>\n> :flag_us: <@473903419497775114>\n> :flag_us: <@473903419497775114>\n\n✅ Team Caffable can not provide support to you via Discord DMs!\n✅Make sure to rate the conversation when it has been finished.`)
+  newTicketMenuEmbed.setColor(guildForColorRoleMenu.members.me.displayColor)
+  const ticketOptions = new ActionRowBuilder()
+			.addComponents(
+        new ButtonBuilder()
+        .setLabel('Product Inquiry')
+        .setStyle('1')
+        .setCustomId(`2`)
+        .setEmoji('❓'),
+				new ButtonBuilder()
+        .setLabel('Partnership Request')
+        .setStyle('2')
+        .setCustomId(`1`)
+        .setEmoji('📩'),
+        new ButtonBuilder()
+        .setLabel('Billing Inquiry (Stripe, PayPal)')
+        .setStyle('2')
+        .setCustomId(`3`)
+        .setEmoji('💸'),
+        new ButtonBuilder()
+        .setLabel('General Inquiry')
+        .setStyle('2')
+        .setCustomId(`4`)
+        .setEmoji('📞'),
+        new ButtonBuilder()
+        .setLabel('Sponsor Purchase')
+        .setStyle('2')
+        .setCustomId(`5`)
+        .setEmoji('🎉')
+      );
+    // client.channels.cache.get(`955908272345448519`).send({ embeds: [newTicketMenuEmbed], components: [ticketOptions] })
+    }
+    
   
       // Get status & update
       const cityReff = db.collection('bots').doc(`${b.id}`).collection('settings').doc(`appearance`);
@@ -436,18 +475,7 @@ bots.forEach(async b => {
   });
   
   // Interaction Stuff
-  
-  client.on('interactionCreate', interaction => {
-    if (!interaction.isModalSubmit()) return;
-  });
-  client.on('interactionCreate', interaction => {
-    if (!interaction.isModalSubmit()) return;
-    // Get the data entered by the user
-    const support = interaction.fields.getTextInputValue('supportInput');
-    if (interaction.customId === 'myModal') {
-       interaction.reply({ content: 'Your submission was recieved successfully!' });
-    }
-  });
+
   client.on('interactionCreate', async interaction => {
   
     if (!interaction.isButton()) return;
@@ -553,7 +581,9 @@ bots.forEach(async b => {
   
     }
   });
+ 
   
+
   // Unsubscribe button
   client.on('interactionCreate', async interaction => {
   if(interaction.customId === 'unsubscribe-button') {
@@ -760,7 +790,158 @@ bots.forEach(async b => {
   
   // Ticket Interaction Listeners
   client.on(Events.InteractionCreate, async interaction => {
+    console.log("Ugh", interaction.customId)
+    // Check For Modal
+    if(interaction.isModalSubmit()) {
+      // Handle Successful Modal Submit
+       // Get Current Ticket Number from Database & Add Permissions To An Array
+       const captureId = interaction.customId.split('_');
+    const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
+    const current = await getCurrent.get();
+    var staffRolesFinal = []
+    const getTicket = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc(captureId[2]).collection('options').doc(captureId[3])
+    const ticket = await getTicket.get();
+    const staffRolesFromDb = ticket.data().staffRoles.split(',');
+    staffRolesFromDb.map(async role => {
+      staffRolesFinal.push({
+        id: role,
+        allow: [PermissionFlagsBits.ViewChannel],
+      })
+    })
+    staffRolesFinal.push({
+      id: interaction.member.user.id,
+      allow: [PermissionFlagsBits.ViewChannel],
+    })
+    staffRolesFinal.push({
+      id: interaction.guild.id,
+      deny: [PermissionFlagsBits.ViewChannel],
+    })
+  // Create a new channel with permission overwrites
+  interaction.guild.channels.create({
+    name: `${ticket.data().prefix}-${current.data().current}`,
+    reason: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
+    topic: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
+    type: ChannelType.GuildText,
+    permissionOverwrites: staffRolesFinal,
+  }).then(async channel => {
+    // Set Proper Parent Category
+    channel.setParent(ticket.data().category, { lockPermissions: false })
+    const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
+    const current = await getCurrent.get();
+    // Send Message in Channel
+    const initialReplyEmbedColor = client.guilds.cache.get(b.id)
+    var replyEmbedDescription = ticket.data().replyEmbedDescription
+    replyEmbedDescription = replyEmbedDescription.replaceAll("{username}", `${interaction.member.user.username}`);
+    replyEmbedDescription = replyEmbedDescription.replaceAll("/n", `\n`);
+    const initialReplyEmbed = new EmbedBuilder()
+    initialReplyEmbed.setTitle(ticket.data().replyEmbedTitle)
+    initialReplyEmbed.setDescription(replyEmbedDescription)
+    initialReplyEmbed.setColor(initialReplyEmbedColor.members.me.displayColor)
+    // Ping Roles
+    var pingRoles = ticket.data().pingRoles.split(',').map(roleId => ` <@&${roleId}>`)
+    // Close Ticket Button
+    const row = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`close_ticket_${current.data().current}_${ticket.data().logChannel}`)
+        .setLabel('Close Ticket')
+        .setStyle(ButtonStyle.Danger),
+    );
+    client.channels.cache.get(`${channel.id}`).send({ content: `<@${interaction.member.user.id}>,${pingRoles}`, embeds: [initialReplyEmbed], components: [row] }).then(message => {
+      message.pin().then(done => {
+        channel.bulkDelete(1)
+      })
+    })
+    
+     // Get Current Ticket Number from Database & Add Permissions To An Array
+     var staffRolesFinal = []
+     const staffRolesFromDb = ticket.data().staffRoles.split(',');
+     staffRolesFromDb.map(async role => {
+       staffRolesFinal.push({
+         id: role,
+         allow: [PermissionFlagsBits.ViewChannel],
+       })
+     })
+     staffRolesFinal.push({
+       id: interaction.member.user.id,
+       allow: [PermissionFlagsBits.ViewChannel],
+     })
+     staffRolesFinal.push({
+       id: interaction.guild.id,
+       deny: [PermissionFlagsBits.ViewChannel],
+     })
+   // Create a new channel with permission overwrites
+   console.log("Why two", interaction.customId)
+   interaction.guild.channels.create({
+     name: `${ticket.data().prefix}-${current.data().current}`,
+     reason: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
+     topic: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
+     type: ChannelType.GuildText,
+     permissionOverwrites: staffRolesFinal,
+   }).then(async channel => {
+    console.log("?????")
+     // Set Proper Parent Category
+     channel.setParent(ticket.data().category, { lockPermissions: false })
+   
+     // Send Message in Channel
+     const initialReplyEmbedColor = client.guilds.cache.get(b.id)
+     var replyEmbedDescription = ticket.data().replyEmbedDescription
+     replyEmbedDescription = replyEmbedDescription.replaceAll("{username}", `${interaction.member.user.username}`);
+     replyEmbedDescription = replyEmbedDescription.replaceAll("/n", `\n`);
+     const initialReplyEmbed = new EmbedBuilder()
+     initialReplyEmbed.setTitle(ticket.data().replyEmbedTitle)
+     initialReplyEmbed.setDescription(replyEmbedDescription)
+     initialReplyEmbed.setColor(initialReplyEmbedColor.members.me.displayColor)
+     // Ping Roles
+     var pingRoles = ticket.data().pingRoles.split(',').map(roleId => ` <@&${roleId}>`)
+     // Close Ticket Button
+     const row = new ActionRowBuilder()
+     .addComponents(
+       new ButtonBuilder()
+         .setCustomId(`close_ticket_${current.data().current}_${ticket.data().logChannel}`)
+         .setLabel('Close Ticket')
+         .setStyle(ButtonStyle.Danger),
+     );
+     client.channels.cache.get(`${channel.id}`).send({ content: `<@${interaction.member.user.id}>,${pingRoles}`, embeds: [initialReplyEmbed], components: [row] }).then(message => {
+       message.pin().then(done => {
+         channel.bulkDelete(1)
+       })
+     })
+     
+     // Send Success Embed
+     const reactionRoleNotFound = new EmbedBuilder()
+     reactionRoleNotFound.setTitle(`🤩 Ticket Created`) 
+     reactionRoleNotFound.setDescription(`You're able to access your ticket in <#${channel.id}>.`)
+     // reactionRoleNotFound.setFooter({
+     // text: "Designed by Arigo",
+     // iconURL: "https://cdn.arigoapp.com/logo"
+     // }),
+     reactionRoleNotFound.setColor("Green")
+     interaction.reply({ embeds: [reactionRoleNotFound], ephemeral: true })
+     const modalSuccessEmbedColor = client.guilds.cache.get(b.id)
+     const modalResponseEmbed = new EmbedBuilder()
+     modalResponseEmbed.setTitle(`${interaction.user.username} said:`) 
+     modalResponseEmbed.setDescription("```" + interaction.fields.getTextInputValue('reason-ticket-modal') + "```")
+     // reactionRoleNotFound.setFooter({
+     // text: "Designed by Arigo",
+     // iconURL: "https://cdn.arigoapp.com/logo"
+     // }),
+     modalResponseEmbed.setColor(modalSuccessEmbedColor.members.me.displayColor)
+     client.channels.cache.get(`${channel.id}`).send({ embeds: [modalResponseEmbed] })
+
+     // Increase Current
+     const updateCurrent = {
+       current: parseInt(current.data().current) + parseInt(1)
+     }
+     await db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number').set(updateCurrent)
+     })
+     return
+    })
+    return
+  } 
+    if(interaction.customId.includes('modal')) return;
     if (!interaction.isButton()) return;
+    console.log("Huh!", interaction.customId)
     const captureId = interaction.customId.split('_');
     if(JSON.stringify(captureId).includes('ticket') === false) {
       return
@@ -788,7 +969,7 @@ bots.forEach(async b => {
         await storage.bucket(bucketName).file(destFileName).save(contents);
         storage.bucket(bucketName).makePublic();
         }
-      // uploadFromMemory().catch(console.error);
+      uploadFromMemory().catch(console.error);
       const handleSuccessRow = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
@@ -840,6 +1021,7 @@ bots.forEach(async b => {
         cancelEmbed.setColor("Yellow")
         return interaction.reply({ embeds: [cancelEmbed], ephemeral: true })
         } else {
+        if(interaction.customId.includes("modal")) return;
         // -- Reply To Close Ticket Button --
     const handleCloseRow = new ActionRowBuilder()
     .addComponents(
@@ -858,7 +1040,7 @@ bots.forEach(async b => {
     );
   // Get Confirmation
   const confirmationEmbed = new EmbedBuilder()
-  confirmationEmbed.setTitle(`⚠️ | Are you sure you want to close this ticket?`) 
+  confirmationEmbed.setTitle(`⚠️ Are you sure you want to close this ticket?`) 
   // confirmationEmbed.setFooter({
   // text: "Designed by Arigo",
   // iconURL: "https://cdn.arigoapp.com/logo"
@@ -871,6 +1053,7 @@ bots.forEach(async b => {
       // Get in database
     const getTicket = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc(captureId[2]).collection('options').doc(captureId[3])
     const ticket = await getTicket.get();
+   
   
     if(!ticket.exists) {
       // Ticket Menu Not Found
@@ -884,6 +1067,25 @@ bots.forEach(async b => {
       ticketMenuNotFound.setColor("Red")
       return interaction.reply({ embeds: [ticketMenuNotFound], ephemeral: true })
     }
+    // Check For Modal & Send
+    if(ticket.data().modal === true) {
+      try {
+      if(interaction.fields.getTextInputValue('reason-ticket-modal') === !undefined);
+      } catch {
+        console.log('j')
+      }
+    const modal = new ModalBuilder()
+			.setCustomId(interaction.customId.replace("menu", "modal"))
+			.setTitle('Almost done...');
+		const ticketModal = new TextInputBuilder()
+			.setCustomId('reason-ticket-modal')
+			.setLabel(ticket.data().modalQuestion)
+			.setStyle(TextInputStyle.Paragraph);
+		const firstActionRow = new ActionRowBuilder().addComponents(ticketModal);
+  	modal.addComponents(firstActionRow);
+		return await interaction.showModal(modal);
+  } else if(ticket.data().modal === false) {
+    console.log("wtff")
     // Get Current Ticket Number from Database & Add Permissions To An Array
     const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
     const current = await getCurrent.get();
@@ -941,8 +1143,8 @@ bots.forEach(async b => {
     
     // Send Success Embed
     const reactionRoleNotFound = new EmbedBuilder()
-    reactionRoleNotFound.setTitle(`🤩 Ticket Created Successfully`) 
-    reactionRoleNotFound.setDescription(`You're now able to access your ticket in <#${channel.id}>.`)
+    reactionRoleNotFound.setTitle(`🤩 Ticket Created`) 
+    reactionRoleNotFound.setDescription(`You're able to access your ticket in <#${channel.id}>.`)
     // reactionRoleNotFound.setFooter({
     // text: "Designed by Arigo",
     // iconURL: "https://cdn.arigoapp.com/logo"
@@ -955,6 +1157,7 @@ bots.forEach(async b => {
       current: parseInt(current.data().current) + parseInt(1)
     }
     await db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number').set(updateCurrent)
+  }
     })
   
   // Reaction Roles // Role Menus
