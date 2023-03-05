@@ -5,13 +5,13 @@ const { Routes, REST, SlashCommandBuilder, ButtonStyle, ChannelType, PermissionF
 // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 // const guildId = process.env["guildId"]
 // const clientId = process.env["clientId"]
-const environment = 'production'
+// const environment = 'production'
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
 // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
 // const guildId = '864016187107966996'
 // const clientId = '952310761869410455'
-// const environment = 'development'
+const environment = 'development'
 
 //----
 const express = require('express')
@@ -152,7 +152,7 @@ bots.forEach(async b => {
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    await deployCommands(client.user.id, b.id, bot.token)
+    // await deployCommands(client.user.id, b.id, bot.token)
     
     const row = new ActionRowBuilder()
         .addComponents(
@@ -790,7 +790,6 @@ bots.forEach(async b => {
   
   // Ticket Interaction Listeners
   client.on(Events.InteractionCreate, async interaction => {
-    console.log("Ugh", interaction.customId)
     // Check For Modal
     if(interaction.isModalSubmit()) {
       // Handle Successful Modal Submit
@@ -798,61 +797,10 @@ bots.forEach(async b => {
        const captureId = interaction.customId.split('_');
     const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
     const current = await getCurrent.get();
-    var staffRolesFinal = []
     const getTicket = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc(captureId[2]).collection('options').doc(captureId[3])
     const ticket = await getTicket.get();
-    const staffRolesFromDb = ticket.data().staffRoles.split(',');
-    staffRolesFromDb.map(async role => {
-      staffRolesFinal.push({
-        id: role,
-        allow: [PermissionFlagsBits.ViewChannel],
-      })
-    })
-    staffRolesFinal.push({
-      id: interaction.member.user.id,
-      allow: [PermissionFlagsBits.ViewChannel],
-    })
-    staffRolesFinal.push({
-      id: interaction.guild.id,
-      deny: [PermissionFlagsBits.ViewChannel],
-    })
-  // Create a new channel with permission overwrites
-  interaction.guild.channels.create({
-    name: `${ticket.data().prefix}-${current.data().current}`,
-    reason: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
-    topic: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
-    type: ChannelType.GuildText,
-    permissionOverwrites: staffRolesFinal,
-  }).then(async channel => {
-    // Set Proper Parent Category
-    channel.setParent(ticket.data().category, { lockPermissions: false })
-    const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
-    const current = await getCurrent.get();
-    // Send Message in Channel
-    const initialReplyEmbedColor = client.guilds.cache.get(b.id)
-    var replyEmbedDescription = ticket.data().replyEmbedDescription
-    replyEmbedDescription = replyEmbedDescription.replaceAll("{username}", `${interaction.member.user.username}`);
-    replyEmbedDescription = replyEmbedDescription.replaceAll("/n", `\n`);
-    const initialReplyEmbed = new EmbedBuilder()
-    initialReplyEmbed.setTitle(ticket.data().replyEmbedTitle)
-    initialReplyEmbed.setDescription(replyEmbedDescription)
-    initialReplyEmbed.setColor(initialReplyEmbedColor.members.me.displayColor)
-    // Ping Roles
-    var pingRoles = ticket.data().pingRoles.split(',').map(roleId => ` <@&${roleId}>`)
-    // Close Ticket Button
-    const row = new ActionRowBuilder()
-    .addComponents(
-      new ButtonBuilder()
-        .setCustomId(`close_ticket_${current.data().current}_${ticket.data().logChannel}`)
-        .setLabel('Close Ticket')
-        .setStyle(ButtonStyle.Danger),
-    );
-    client.channels.cache.get(`${channel.id}`).send({ content: `<@${interaction.member.user.id}>,${pingRoles}`, embeds: [initialReplyEmbed], components: [row] }).then(message => {
-      message.pin().then(done => {
-        channel.bulkDelete(1)
-      })
-    })
-    
+
+
      // Get Current Ticket Number from Database & Add Permissions To An Array
      var staffRolesFinal = []
      const staffRolesFromDb = ticket.data().staffRoles.split(',');
@@ -905,6 +853,16 @@ bots.forEach(async b => {
      client.channels.cache.get(`${channel.id}`).send({ content: `<@${interaction.member.user.id}>,${pingRoles}`, embeds: [initialReplyEmbed], components: [row] }).then(message => {
        message.pin().then(done => {
          channel.bulkDelete(1)
+         const modalSuccessEmbedColor = client.guilds.cache.get(b.id)
+         const modalResponseEmbed = new EmbedBuilder()
+         modalResponseEmbed.setTitle(`${interaction.user.username} said:`) 
+         modalResponseEmbed.setDescription("```" + interaction.fields.getTextInputValue('reason-ticket-modal') + "```")
+         // reactionRoleNotFound.setFooter({
+         // text: "Designed by Arigo",
+         // iconURL: "https://cdn.arigoapp.com/logo"
+         // }),
+         modalResponseEmbed.setColor(modalSuccessEmbedColor.members.me.displayColor)
+         client.channels.cache.get(`${channel.id}`).send({ embeds: [modalResponseEmbed] })
        })
      })
      
@@ -918,30 +876,17 @@ bots.forEach(async b => {
      // }),
      reactionRoleNotFound.setColor("Green")
      interaction.reply({ embeds: [reactionRoleNotFound], ephemeral: true })
-     const modalSuccessEmbedColor = client.guilds.cache.get(b.id)
-     const modalResponseEmbed = new EmbedBuilder()
-     modalResponseEmbed.setTitle(`${interaction.user.username} said:`) 
-     modalResponseEmbed.setDescription("```" + interaction.fields.getTextInputValue('reason-ticket-modal') + "```")
-     // reactionRoleNotFound.setFooter({
-     // text: "Designed by Arigo",
-     // iconURL: "https://cdn.arigoapp.com/logo"
-     // }),
-     modalResponseEmbed.setColor(modalSuccessEmbedColor.members.me.displayColor)
-     client.channels.cache.get(`${channel.id}`).send({ embeds: [modalResponseEmbed] })
 
      // Increase Current
      const updateCurrent = {
        current: parseInt(current.data().current) + parseInt(1)
      }
      await db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number').set(updateCurrent)
-     })
-     return
     })
     return
   } 
     if(interaction.customId.includes('modal')) return;
     if (!interaction.isButton()) return;
-    console.log("Huh!", interaction.customId)
     const captureId = interaction.customId.split('_');
     if(JSON.stringify(captureId).includes('ticket') === false) {
       return
@@ -1072,7 +1017,6 @@ bots.forEach(async b => {
       try {
       if(interaction.fields.getTextInputValue('reason-ticket-modal') === !undefined);
       } catch {
-        console.log('j')
       }
     const modal = new ModalBuilder()
 			.setCustomId(interaction.customId.replace("menu", "modal"))
@@ -1085,7 +1029,6 @@ bots.forEach(async b => {
   	modal.addComponents(firstActionRow);
 		return await interaction.showModal(modal);
   } else if(ticket.data().modal === false) {
-    console.log("wtff")
     // Get Current Ticket Number from Database & Add Permissions To An Array
     const getCurrent = db.collection('bots').doc(`${b.id}`).collection('ticket-menus').doc('current_number')
     const current = await getCurrent.get();
