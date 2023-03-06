@@ -152,7 +152,7 @@ bots.forEach(async b => {
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    await deployCommands(client.user.id, b.id, bot.token)
+    // await deployCommands(client.user.id, b.id, bot.token)
     
     const row = new ActionRowBuilder()
         .addComponents(
@@ -819,7 +819,6 @@ bots.forEach(async b => {
        deny: [PermissionFlagsBits.ViewChannel],
      })
    // Create a new channel with permission overwrites
-   console.log("Why two", interaction.customId)
    interaction.guild.channels.create({
      name: `${ticket.data().prefix}-${current.data().current}`,
      reason: `A "${ticket.data().optionName}" ticket was created by ${interaction.member.user.username} (${interaction.member.user.id}) through an Arigo Ticket Menu`,
@@ -827,7 +826,6 @@ bots.forEach(async b => {
      type: ChannelType.GuildText,
      permissionOverwrites: staffRolesFinal,
    }).then(async channel => {
-    console.log("?????")
      // Set Proper Parent Category
      channel.setParent(ticket.data().category, { lockPermissions: false })
    
@@ -852,17 +850,19 @@ bots.forEach(async b => {
      );
      client.channels.cache.get(`${channel.id}`).send({ content: `<@${interaction.member.user.id}>,${pingRoles}`, embeds: [initialReplyEmbed], components: [row] }).then(message => {
        message.pin().then(done => {
-         channel.bulkDelete(1)
-         const modalSuccessEmbedColor = client.guilds.cache.get(b.id)
-         const modalResponseEmbed = new EmbedBuilder()
-         modalResponseEmbed.setTitle(`${interaction.user.username} said:`) 
-         modalResponseEmbed.setDescription("```" + interaction.fields.getTextInputValue('reason-ticket-modal') + "```")
-         // reactionRoleNotFound.setFooter({
-         // text: "Designed by Arigo",
-         // iconURL: "https://cdn.arigoapp.com/logo"
-         // }),
-         modalResponseEmbed.setColor(modalSuccessEmbedColor.members.me.displayColor)
-         client.channels.cache.get(`${channel.id}`).send({ embeds: [modalResponseEmbed] })
+         channel.bulkDelete(1).then(done2 => {
+          const modalSuccessEmbedColor = client.guilds.cache.get(b.id)
+          const modalResponseEmbed = new EmbedBuilder()
+          modalResponseEmbed.setTitle(`${interaction.user.username} said:`) 
+          modalResponseEmbed.setDescription("```" + interaction.fields.getTextInputValue('reason-ticket-modal') + "```")
+          // reactionRoleNotFound.setFooter({
+          // text: "Designed by Arigo",
+          // iconURL: "https://cdn.arigoapp.com/logo"
+          // }),
+          modalResponseEmbed.setColor(modalSuccessEmbedColor.members.me.displayColor)
+          client.channels.cache.get(`${channel.id}`).send({ embeds: [modalResponseEmbed] })
+         })
+         
        })
      })
      
@@ -885,7 +885,6 @@ bots.forEach(async b => {
     })
     return
   } 
-    if(interaction.customId.includes('modal')) return;
     if (!interaction.isButton()) return;
     const captureId = interaction.customId.split('_');
     if(JSON.stringify(captureId).includes('ticket') === false) {

@@ -26,6 +26,14 @@ module.exports = {
     await msgs.map((msg) => { 
 
         var msgContent = msg.content
+        if(msg.author.bot) {
+            if(msg.embeds[0].data.title.endsWith('said:')) {
+            msgsArray.push({ 
+                role: 'user',
+                content: msg.embeds[0].data.description.replaceAll('`', '')
+                })
+            }
+        }
         if((msg.content === '') || (msg.author.bot === true)) return; 
         if(msg.id === lastMessage.first().id) {
             msgContent = `${msgContent}`
@@ -53,7 +61,7 @@ module.exports = {
     // msgsArray.push({ role: 'system', content: 'Known Question: How do I get a discount on Arigo?\nKnown Answer: Arigo offers a partnership program that offers 5% off monthly.' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How do I apply for an HR position?\nKnown Answer: Arigo does not recruit HRs, though we are actively hiring MRs.' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How do I apply for an MR position?\nKnown Answer: Visit our Roblox Application Center at https://roblox.com/yes to apply and be auto-ranked.' })
-    msgsArray.push({ role: 'system', content: 'Known Question: How do you get the Image ID for the Overhead GUI System?\nKnown Answer: The Image ID is the number found within your decal link.' })
+    // msgsArray.push({ role: 'system', content: 'Known Question: How do you get the Image ID for the Overhead GUI System?\nKnown Answer: The Image ID is the number found within your decal link.' })
     msgsArray.push({ role: 'system', content: 'Known Question: Overhead System FAQs?\nKnown Answer: 1: The Image ID is the number found within your decal link. 2: You can not change the core script of the system, as it is locked under a licensing system. What you can change are the settings as seen in the document below.\n\nhttps://docs.google.com/document/d/1iyYfWr0Eb1fiCHED7RRS6WgjjbnGphyNJLdW2C_qblU/edit?usp=sharing. 3: This system works with gamepasses and does not currently support developer products, though this is something our team is currently looking into.' })
     msgsArray.push({ role: 'system', content: 'You are an AI programmed to help a human support agent with answering customer questions. Below are a few known questions with the correct known answers that users may ask. Do not answer questions that were already answered by system, simply provide a BRIEF SUGGESTED REPLY. Do not include unncessary information' })
     msgsArray = msgsArray.map(item => item).reverse();
