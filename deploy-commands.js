@@ -64,7 +64,7 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 	const dataUtility = db.collection('bots').doc(`${guildId}`).collection('modules').doc('utility');
 	const utilityDoc = await dataUtility.get();
 	if(utilityDoc.data().status === 'enabled') {
-	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball')
+	  enabled.push( 'serverinfo', 'calculator', 'emojify', 'ping', 'say', 'userinfo', '8ball', 'suggestedreply')
 	} else if(utilityDoc.data().status === 'disabled') {
 		const toRemove = [
 		'calculator',
@@ -74,8 +74,8 @@ const data = db.collection('bots').doc(`${guildId}`).collection('modules').doc('
 		'say',
 		'userinfo',
 		'8ball',
-		// 'suggestedreply'
-		  ]
+		'suggestedreply'
+		]
 	   enabled.forEach(enabled => {
 		commandFiles.filter(file => file.startsWith(toRemove))
 	  })          
@@ -91,8 +91,13 @@ for (const file of enabled) {
 	commands.push(command.data.toJSON());
 }
 
-const rest = new REST({ version: '9' }).setToken(token);
 
+// Delete Commands
+const rest = new REST({ version: '9' }).setToken(token);
+// rest.put(Routes.applicationCommands(clientId), { body: [] })
+// 	.then((d) => console.log('Successfully deleted all guild commands.', d))
+// 	.catch(console.error);
+// 	return
 	try {
 		await rest.put(
 			Routes.applicationGuildCommands(clientId, guildId),

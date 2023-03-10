@@ -156,7 +156,7 @@ bots.forEach(async b => {
   }
   client.once('ready', async () => {
     // Node Deploy Commands (deploy-commands).js
-    await deployCommands(client.user.id, b.id, bot.token)
+    // await deployCommands(client.user.id, b.id, bot.token)
     
     const row = new ActionRowBuilder()
         .addComponents(
@@ -962,6 +962,8 @@ bots.forEach(async b => {
         transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`
         }
     await db.collection("bots").doc(`${interaction.guild.id}`).collection('support-ai-faqs').doc(`${Math.floor(Math.random() * 9000000000) + 1000000000}`).set(AITicketData)
+      console.log("Item", item)
+      console.log("Specifc", item.Q)
     })
    return
     // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")

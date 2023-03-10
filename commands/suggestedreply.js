@@ -27,11 +27,15 @@ module.exports = {
 
         var msgContent = msg.content
         if(msg.author.bot) {
+            try {
             if(msg.embeds[0].data.title.endsWith('said:')) {
             msgsArray.push({ 
                 role: 'user',
                 content: msg.embeds[0].data.description.replaceAll('`', '')
                 })
+            }
+        } catch {
+                //
             }
         }
         if((msg.content === '') || (msg.author.bot === true)) return; 
@@ -51,6 +55,7 @@ module.exports = {
         }
 
     })
+
     // msgsArray.push({ role: 'system', content: 'Known Question: Where can I find a list of all the products?\nKnown Answer: A list of all products can be found in <#864016187602763826>' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How much is the overhead system?\nKnown Answer: The overhead system costs 799 Robux' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How much does the overhead system cost in USD?\nKnown Answer: The overhead system costs $5.99 USD' })
@@ -62,15 +67,19 @@ module.exports = {
     // msgsArray.push({ role: 'system', content: 'Known Question: How do I apply for an HR position?\nKnown Answer: Arigo does not recruit HRs, though we are actively hiring MRs.' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How do I apply for an MR position?\nKnown Answer: Visit our Roblox Application Center at https://roblox.com/yes to apply and be auto-ranked.' })
     // msgsArray.push({ role: 'system', content: 'Known Question: How do you get the Image ID for the Overhead GUI System?\nKnown Answer: The Image ID is the number found within your decal link.' })
-    msgsArray.push({ role: 'system', content: 'Known Question: Overhead System FAQs?\nKnown Answer: 1: The Image ID is the number found within your decal link. 2: You can not change the core script of the system, as it is locked under a licensing system. What you can change are the settings as seen in the document below.\n\nhttps://docs.google.com/document/d/1iyYfWr0Eb1fiCHED7RRS6WgjjbnGphyNJLdW2C_qblU/edit?usp=sharing. 3: This system works with gamepasses and does not currently support developer products, though this is something our team is currently looking into.' })
-    msgsArray.push({ role: 'system', content: 'You are an AI programmed to help a human support agent with answering customer questions. Below are a few known questions with the correct known answers that users may ask. Do not answer questions that were already answered by system, simply provide a BRIEF SUGGESTED REPLY. Do not include unncessary information' })
+    await db.collection("bots").doc(`${interaction.guild.id}`).collection('support-ai-faqs').get().then((querySnapshot) => {
+        querySnapshot.forEach(async(doc) => {
+           await msgsArray.push({ role: 'system', content: `Known Question: ${doc.data().question}?\nKnown Answer: ${doc.data().answer}` })
+        });
+    });
+    msgsArray.push({ role: 'system', content: 'You are an AI programmed to help a human support agent with answering customer questions. Below are a few known questions with the correct known answers that users may ask, ONLY base your replies off of the data below or previous conversation history within the provided messages, if you are not sure, state "Im not sure" and nothing else. Do not answer questions that were already answered by system, simply provide a BRIEF SUGGESTED REPLY. Do not include unncessary information' })
     msgsArray = msgsArray.map(item => item).reverse();
     const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: msgsArray,
     max_tokens: 100,
+    temperature: 0
     });
-    const finalResponse = completion.data.choices[0].message.content.split('.');
     // embed.setTitle("💬 Suggested Reply")
     embed.setDescription("```" + completion.data.choices[0].message.content + "```")
     embed.setFooter({
