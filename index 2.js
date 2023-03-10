@@ -20,20 +20,19 @@
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    ActivityType,
     CommandInteractionOptionResolver,
   } = require("discord.js");
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const guildId = process.env["guildId"]
   // const clientId = process.env["clientId"]
-  const environment = "production";
+  // const environment = 'production'
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
-  // const guildId = "864016187107966996";
-  // const clientId = "952310761869410455";
-  // const environment = "development";
+  // const guildId = '864016187107966996'
+  // const clientId = '952310761869410455'
+  const environment = "development";
 
   //----
   const express = require("express");
@@ -186,7 +185,7 @@
     }
     client.once("ready", async () => {
       // Node Deploy Commands (deploy-commands).js
-      await deployCommands(client.user.id, b.id, bot.token);
+      // await deployCommands(client.user.id, b.id, bot.token)
 
       const row = new ActionRowBuilder()
         .addComponents(
@@ -313,49 +312,36 @@
       }
 
       // Get status & update
-      const appearanceRef = db
+      const cityReff = db
         .collection("bots")
         .doc(`${b.id}`)
         .collection("settings")
         .doc(`appearance`);
-      const appearance = await appearanceRef.get();
-      if (parseInt(appearance.data().visibility) === 1) {
+      const dbStatus = await cityReff.get();
+      if (parseInt(dbStatus.data().visibility) === 1) {
         client.user.setStatus("online");
-      } else if (parseInt(appearance.data().visibility) === 2) {
+      } else if (parseInt(dbStatus.data().visibility) === 2) {
         client.user.setStatus("dnd");
-      } else if (parseInt(appearance.data().visibility) === 3) {
+      } else if (parseInt(dbStatus.data().visibility) === 3) {
         client.user.setStatus("idle");
-      } else if (parseInt(appearance.data().visibility) === 4) {
+      } else if (parseInt(dbStatus.data().visibility) === 4) {
         client.user.setStatus("invisible");
       }
-
-      const activities = appearance.data().statuses ?? [];
-
-      // fill activities until size is 5
-      while (activities.length < 5) {
-        activities.push({
-          status: "arigoapp.com",
-          type: ActivityType.Watching,
-        });
-      }
-
-      const setActivity = () => {
-        const random = Math.floor(Math.random() * activities.length) + 1;
-        const activity = activities[random - 1];
-
-        client.user.setActivity({
-          name: activity.status,
-          type: activity.type,
-        });
+      const activities = {
+        "Team Arigo": "WATCHING",
+        "in Arigo Community": "PLAYING",
+        "on Arigo": "PLAYING",
+        "arigoapp.com": "WATCHING",
+        "the team": "WATCHING",
       };
-
-      setActivity();
-
-      console.log(
-        `Set activity for ${b.id}! ${client.user.presence.activities[0].name} ${client.user.presence.activities[0].type}`
-      );
-
-      setInterval(setActivity, 10000);
+      setInterval(() => {
+        // generate random number between 1 and list length.
+        const keys = Object.keys(activities);
+        const prop = keys[Math.floor(Math.random() * keys.length)];
+        client.user.setPresence({
+          activities: [{ name: prop, type: activities[prop] }],
+        });
+      }, 10000);
     });
 
     // Deleted Message
@@ -909,10 +895,12 @@
                 .setEmoji(doc.data().optionIcon)
             );
           });
-          client.channels.cache.get(`${ticketMenu.data().channelId}`).send({
-            embeds: [newTicketMenuEmbed],
-            components: [ticketOptions],
-          });
+          client.channels.cache
+            .get(`${ticketMenu.data().channelId}`)
+            .send({
+              embeds: [newTicketMenuEmbed],
+              components: [ticketOptions],
+            });
         });
       res.send("Success");
       return console.log("Successfully Created Ticket Menu", req.params.id);
@@ -1170,6 +1158,8 @@
               .collection("support-ai-faqs")
               .doc(`${Math.floor(Math.random() * 9000000000) + 1000000000}`)
               .set(AITicketData);
+            console.log("Item", item);
+            console.log("Specifc", item.Q);
           });
           return;
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
