@@ -27,13 +27,13 @@
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const guildId = process.env["guildId"]
   // const clientId = process.env["clientId"]
-  const environment = "production";
+  // const environment = "production";
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
   // const guildId = "864016187107966996";
   // const clientId = "952310761869410455";
-  // const environment = "development";
+  const environment = "development";
 
   //----
   const express = require("express");
@@ -186,7 +186,7 @@
     }
     client.once("ready", async () => {
       // Node Deploy Commands (deploy-commands).js
-      await deployCommands(client.user.id, b.id, bot.token);
+      // await deployCommands(client.user.id, b.id, bot.token);
 
       const row = new ActionRowBuilder()
         .addComponents(
@@ -331,14 +331,6 @@
 
       const activities = appearance.data().statuses ?? [];
 
-      // fill activities until size is 5
-      while (activities.length < 5) {
-        activities.push({
-          status: "arigoapp.com",
-          type: ActivityType.Watching,
-        });
-      }
-
       const setActivity = () => {
         const random = Math.floor(Math.random() * activities.length) + 1;
         const activity = activities[random - 1];
@@ -352,7 +344,7 @@
       setActivity();
 
       console.log(
-        `Set activity for ${b.id}! ${client.user.presence.activities[0].name} ${client.user.presence.activities[0].type}`
+        `Set activity for ${b.id} to ${client.user.presence.activities[0].name} ${client.user.presence.activities[0].type}!`
       );
 
       setInterval(setActivity, 10000);
@@ -864,11 +856,10 @@
       // }}) - Bot Suspension
     });
 
-    // Ticket Module
 
+    // Ticket/Support Module
     // Deploy New Ticket Menu
-    app.get("/bot/push/ticket-menu/:id", async (req, res) => {
-      // http://localhost:4000/bot/push/ticket-menu/${menuId}
+    app.get("/bot/push/support-menu/:id", async (req, res) => {
       // Get in database
       const getTicketMenus = db
         .collection("bots")
@@ -942,7 +933,7 @@
 
         // Get Current Ticket Number from Database & Add Permissions To An Array
         var staffRolesFinal = [];
-        const staffRolesFromDb = ticket.data().staffRoles.split(",");
+        const staffRolesFromDb = ticket.data().staffRoles
         staffRolesFromDb.map(async (role) => {
           staffRolesFinal.push({
             id: role,
@@ -996,7 +987,7 @@
             // Ping Roles
             var pingRoles = ticket
               .data()
-              .pingRoles.split(",")
+              .pingRoles
               .map((roleId) => ` <@&${roleId}>`);
             // Close Ticket Button
             const row = new ActionRowBuilder().addComponents(
@@ -1171,7 +1162,6 @@
               .doc(`${Math.floor(Math.random() * 9000000000) + 1000000000}`)
               .set(AITicketData);
           });
-          return;
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
@@ -1229,9 +1219,6 @@
           const initialReplyEmbedColor = client.guilds.cache.get(b.id);
           const logChannelEmbed = new EmbedBuilder();
           logChannelEmbed.setTitle("✉️ | Ticket Log");
-          logChannelEmbed.setDescription(
-            `To view the ticket transcript within 30 days of the ticket closure, you're able to use the embedded button. Once 30 days pass, you're able to download & open the attached HTML file to open a copy of the transcript.`
-          );
           logChannelEmbed.addFields(
             {
               name: "Created By 👤",
@@ -1370,7 +1357,7 @@
           .doc("current_number");
         const current = await getCurrent.get();
         var staffRolesFinal = [];
-        const staffRolesFromDb = ticket.data().staffRoles.split(",");
+        const staffRolesFromDb = ticket.data().staffRoles
         staffRolesFromDb.map(async (role) => {
           staffRolesFinal.push({
             id: role,
@@ -1424,7 +1411,7 @@
             // Ping Roles
             var pingRoles = ticket
               .data()
-              .pingRoles.split(",")
+              .pingRoles
               .map((roleId) => ` <@&${roleId}>`);
             // Close Ticket Button
             const row = new ActionRowBuilder().addComponents(

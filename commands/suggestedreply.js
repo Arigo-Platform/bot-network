@@ -10,6 +10,18 @@ module.exports = {
     .setDescription("Get a simple template for replying to a support ticket"),
   async execute(interaction, embed, db, events, Sentry) {
     try {
+      console.log("Channel", interaction.channel.topic)
+      console.log("huh", interaction.channel.topic.includes("A"))
+      var success
+      if (interaction.channel.topic.includes("A") === true) success = false;
+      if (interaction.channel.topic.includes("ticket was created by") === true) success = false;
+      if (interaction.channel.topic.includes("through an Arigo Ticket Menu") === true) success = false;
+      if(success === false) {
+        embed.setTitle("😞 Incorrect Channel");
+        embed.setDescription("This command can only be ran within tickets created through an Arigo Bot.");
+        embed.setColor("Red")
+        return interaction.reply({ embeds: [embed], ephemeral: true });
+      }
       interaction.deferReply({ ephemeral: true });
       const { Configuration, OpenAIApi } = require("openai");
       const configuration = new Configuration({

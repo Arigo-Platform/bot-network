@@ -13,43 +13,11 @@ module.exports = {
 
   async execute(interaction, embed, db, events, Sentry) {
     const math = require("mathjs");
-    const equation = interaction.options.getString("equation");
+    const equation = interaction.options.getString("equation").replaceAll("x", "*");
     const userId = interaction.member.user.id;
     const serverId = interaction.member.guild.id;
     try {
-      // See if it's addition
-      if (equation.includes("x")) {
-        const myArray = equation.split("");
-        var newArray = myArray.filter(function (f) {
-          return f !== "x";
-        });
-        try {
-          math.evaluate(newArray[0] + "*" + newArray[1]);
-        } catch (e) {
-          embed.setTitle("⚠️ Command Failure");
-          embed.setDescription(
-            "I'm unable to provide an answer to that question, please try again!"
-          );
-          return interaction.reply({ embeds: [embed] });
-        }
-        embed.setTitle("🎒 Calculation");
-        embed.addFields(
-          {
-            name: "Question",
-            value: `${`\`\`\`css\n${equation}\`\`\``}`,
-            inline: true,
-          },
 
-          {
-            name: "Answer",
-            value: `${`\`\`\`css\n${math.evaluate(
-              newArray[0] + "*" + newArray[1]
-            )}\`\`\``}`,
-            inline: true,
-          }
-        );
-        interaction.reply({ embeds: [embed] });
-      } else {
         // See if the math is possible
         var resp;
         try {
@@ -90,7 +58,6 @@ module.exports = {
           success: `true`,
           serverId: `${serverId}`,
         });
-      }
     } catch (e) {
       Sentry.captureException(e);
       console.error("Error in calculator command", e);
