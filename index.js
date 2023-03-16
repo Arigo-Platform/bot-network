@@ -49,11 +49,7 @@
   const deployCommands = require("./deploy-commands");
   const discordTranscripts = require("discord-html-transcripts");
   const { Configuration, OpenAIApi } = require("openai");
-  // OpenAI Stuff
-  const configuration = new Configuration({
-    apiKey: "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",
-  });
-  const openai = new OpenAIApi(configuration);
+
   // Sentry Info
   const Sentry = require("@sentry/node");
   // or use es6 import statements
@@ -128,6 +124,7 @@
   });
 
   module.exports = events;
+ 
 
   app.get("/", (req, res) => {
     res.send("Server Not Found - Key Missing");
@@ -186,7 +183,7 @@
     }
     client.once("ready", async () => {
       // Node Deploy Commands (deploy-commands).js
-      // await deployCommands(client.user.id, b.id, bot.token);
+      await deployCommands(client.user.id, b.id, bot.token);
 
       const row = new ActionRowBuilder()
         .addComponents(
@@ -269,6 +266,8 @@
       //       console.log(err.message);
       //     });
       console.log(`Ready for guild ${b.id}!`);
+      
+
       if (b.id === "864016187107966996") {
         // Get HEX Color
         const guildForColorRoleMenu =
@@ -859,17 +858,18 @@
 
     // Ticket/Support Module
     // Deploy New Ticket Menu
-    app.get("/bot/push/support-menu/:id", async (req, res) => {
+    app.get("/bot/:botId/push/support-menu/:id", async (req, res) => {
+      const client = botMap.get(req.params.botId);
       // Get in database
       const getTicketMenus = db
         .collection("bots")
-        .doc(`${b.id}`)
+        .doc(`${req.params.botId}`)
         .collection("ticket-menus")
         .doc(req.params.id);
       const ticketMenu = await getTicketMenus.get();
 
       // Get HEX Color
-      const guildForColorRoleMenu = client.guilds.cache.get(b.id);
+      const guildForColorRoleMenu = client.guilds.cache.get(req.params.botId);
       // Create embed
       const newTicketMenuEmbed = new EmbedBuilder();
       newTicketMenuEmbed.setTitle(`${ticketMenu.data().embed_title}`);
@@ -885,7 +885,7 @@
       );
       const ticketOptions = new ActionRowBuilder();
       db.collection("bots")
-        .doc(`${b.id}`)
+        .doc(`${req.params.botId}`)
         .collection("ticket-menus")
         .doc(req.params.id)
         .collection("options")
@@ -1078,7 +1078,25 @@
         if (JSON.stringify(captureId).includes("approve") === true) {
           interaction.deferReply();
           // Run OpenAI Stuff
-          const channel = interaction.channel;
+          // OpenAI Stuff
+        const getOpenAIStuff = db
+        .collection("bots")
+        .doc(`${interaction.guild.id}`)
+      const openAIKey = await getOpenAIStuff.get();
+      const channel = interaction.channel;
+      const firstMessage = await channel.messages.fetch({
+        limit: 1,
+        after: 0,
+      });
+
+      if(openAIKey.data().openAIAPIKey === undefined || openAIKey.data().openAIAPIKey.length === '') {
+        //
+      } else {
+      const configuration = new Configuration({
+      apiKey: openAIKey.data().openAIAPIKey,
+      });
+      const openai = new OpenAIApi(confsiguration);
+
           let msgsArray = [];
           var ticketOpener;
           const msgs = await channel.messages.fetch({
@@ -1086,10 +1104,7 @@
             force: true,
           });
           const lastMessage = await channel.messages.fetch({ limit: 1 });
-          const firstMessage = await channel.messages.fetch({
-            limit: 1,
-            after: 0,
-          });
+          
           ticketOpener = firstMessage
             .first()
             .content.split(",")[0]
@@ -1132,7 +1147,7 @@
           msgsArray.push({
             role: "user",
             content:
-              'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite.',
+            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs, just reply "None Found". DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS VITALLY IMPORTANT.',
           });
           const completion = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
@@ -1140,28 +1155,49 @@
             max_tokens: 200,
             // temperature: 0
           });
+          console.log("wtf", completion.data.choices[0].message.content)
+          if(completion.data.choices[0].message.content.toLocaleLowerCase().includes("none found")) {
+            // Skip
+            console.log("Skipped")
+          } else {
+            var success
           const finalResponse =
             completion.data.choices[0].message.content.split(".");
           console.log(completion.data.choices[0].message.content);
           var FAQs = {};
+          try {
           FAQs = JSON.parse(
             completion.data.choices[0].message.content.replaceAll("`", "")
-          );
+          )
+          } catch {
+            success = false
+          }
+          
           console.log("FAQs", FAQs);
+          try {
           FAQs.map(async (item) => {
             const AITicketData = {
               question: item.Q,
               answer: item.A,
               createdBy: "system",
               transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
-            };
+            }
+            if(success !== false) {
             await db
               .collection("bots")
               .doc(`${interaction.guild.id}`)
               .collection("support-ai-faqs")
               .doc(`${Math.floor(Math.random() * 9000000000) + 1000000000}`)
-              .set(AITicketData);
-          });
+              .set(AITicketData).then(data => {
+                console.log("Data", data)
+              })
+            }
+          })
+        } catch {
+            //
+        }
+      }
+    }
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
@@ -1244,15 +1280,8 @@
           client.channels.cache
             .get(captureId[4])
             .send({ embeds: [logChannelEmbed], components: [handleSuccessRow] })
-            .then((msg) => {
-              client.channels.cache.get(captureId[4]).send({
-                reply: { messageReference: msg.id, failIfNotExists: false },
-                files: [attachment],
-              });
-            });
 
-          // return interaction.channel.delete(`This ticket has been closed by ${interaction.member.user.id}.`)
-          return;
+          return interaction.channel.delete(`This ticket has been closed by ${interaction.member.user.id}.`)
         }
         // -- Reply To Cancel Close Ticket Button --
         else if (JSON.stringify(captureId).includes("cancel") === true) {
@@ -2039,7 +2068,7 @@
         toSendToOwnerEmbed.setDescription(
           "This notification is to let you know that you've successfully setup your bot in `Arigo Community`, we'd like to welcome you to the Arigo family. We're here to provide you the tools your community needs to operate efficiently and better than ever.\n\nArigo provides industry-leading onboarding tools to get you started using our incredibly diverse platform. Feel free to reach out to your Account Executive, **Ishaan**, via email at ``ishaan@arigoapp.com`` if you need anything."
         );
-        toSendToOwnerEmbed.setColor(interaction.guild.members.me.displayColor);
+        toSendToOwnerEmbed.setColor('Green');
         toSendToOwnerEmbed.setImage(
           "https://cdn.discordapp.com/attachments/819650597803393074/1020809031788539994/Hello_There.png"
         );

@@ -10,12 +10,28 @@ module.exports = {
     .setDescription("Get a simple template for replying to a support ticket"),
   async execute(interaction, embed, db, events, Sentry) {
     try {
-      console.log("Channel", interaction.channel.topic)
-      console.log("huh", interaction.channel.topic.includes("A"))
+      const getOpenAIStuff = db
+        .collection("bots")
+        .doc(`${interaction.guild.id}`)
+      const openAIKey = await getOpenAIStuff.get();
+      if(openAIKey.data().openAIAPIKey === undefined || openAIKey.data().openAIAPIKey.length === '') {
+        embed.setTitle("😞 No API Key Found");
+        embed.setDescription("Please notify a server administrator to input an OpenAI API Key via their [Arigo Workspace](https://app.arigoapp.com).");
+        embed.setColor("Red")
+        return interaction.reply({ embeds: [embed], ephemeral: true });
+      } 
+    
       var success
-      if (interaction.channel.topic.includes("A") === true) success = false;
-      if (interaction.channel.topic.includes("ticket was created by") === true) success = false;
-      if (interaction.channel.topic.includes("through an Arigo Ticket Menu") === true) success = false;
+      try {
+      if (interaction.channel.topic.includes("A") === false) success = false;
+      if (interaction.channel.topic.includes("ticket was created by") === false) success = false;
+      if (interaction.channel.topic.includes("through an Arigo Ticket Menu") === false) success = false;
+      } catch {
+        embed.setTitle("😞 Incorrect Channel");
+        embed.setDescription("This command can only be ran within tickets created through an Arigo Bot.");
+        embed.setColor("Red")
+        return interaction.reply({ embeds: [embed], ephemeral: true });
+      }
       if(success === false) {
         embed.setTitle("😞 Incorrect Channel");
         embed.setDescription("This command can only be ran within tickets created through an Arigo Bot.");
@@ -100,7 +116,7 @@ module.exports = {
       msgsArray.push({
         role: "system",
         content:
-          'You are an AI programmed to help a human support agent with answering customer questions. Below are a few known questions with the correct known answers that users may ask, ONLY base your replies off of the data below or previous conversation history within the provided messages, if you are not sure, state "Im not sure" and nothing else. Do not answer questions that were already answered by system, simply provide a BRIEF SUGGESTED REPLY. Do not include unncessary information',
+          'You are an AI programmed to help a human support agent with answering customer questions. Below are a few known questions with the correct known answers that users may ask, you are ONLY allowed to base your replies off of the data below or previous conversation history within the provided messages. Therefore DO NOT use any other knowledge when thinking of a reply; if you are unsure, simply state "Im not sure". Do not answer questions that were already answered by system, simply provide a BRIEF SUGGESTED REPLY. Do not include unncessary information',
       });
       msgsArray = msgsArray.map((item) => item).reverse();
       const completion = await openai.createChatCompletion({

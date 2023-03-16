@@ -25,7 +25,7 @@ module.exports = {
         } catch (e) {
           embed.setTitle("⚠️ Command Failure");
           embed.setDescription(
-            "I'm unable to calculate that question, please try again!"
+            "I'm unable to calculate that question, please try again!\n\nThink something is wrong? Let us know via the messenger on our [Support Center](https://support.arigoapp.com)."
           );
           events.info("Calculator", {
             user: `${userId}`,
@@ -33,7 +33,7 @@ module.exports = {
             success: `false`,
             serverId: `${serverId}`,
           });
-          return interaction.reply({ embeds: [embed] });
+          return interaction.reply({ embeds: [embed], ephemeral: true });
         }
         // Success
 
