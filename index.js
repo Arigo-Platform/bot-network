@@ -1095,7 +1095,7 @@
       const configuration = new Configuration({
       apiKey: openAIKey.data().openAIAPIKey,
       });
-      const openai = new OpenAIApi(confsiguration);
+      const openai = new OpenAIApi(configuration);
 
           let msgsArray = [];
           var ticketOpener;
