@@ -1875,7 +1875,9 @@
     });
 
     // Deploy New Reaction Roles
-    client.login(bot.token);
+    client.login(bot.token).catch(err => {
+      console.log("Was unable to login to a guild", b.id)
+    })
 
     botMap.set(b.id, client);
   });
