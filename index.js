@@ -327,7 +327,7 @@
       } else if (parseInt(appearance.data().visibility) === 4) {
         client.user.setStatus("invisible");
       }
-      if(appearance.data().statuses.exists()) {
+      if(appearance.data().statuses !== undefined) {
       const activities = appearance.data().statuses ?? [];
 
       const setActivity = () => {
@@ -338,7 +338,7 @@
           name: activity.status,
           type: activity.type,
         });
-      };
+      }
 
       setActivity();
 
@@ -348,7 +348,7 @@
 
       setInterval(setActivity, 10000);
       }
-    });
+    })
   
     // Deleted Message
     client.on(Events.MessageDelete, async (message) => {
