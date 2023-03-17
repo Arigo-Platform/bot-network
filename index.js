@@ -138,7 +138,7 @@
   let bots;
 
   if (environment === "production") {
-    bots = await db.collection("bots").get();
+    bots = await db.collection("bots").get();    
   } else {
     bots = [
       await db.collection("bots").doc("864016187107966996").get(),
@@ -1078,7 +1078,7 @@
         // -- Reply To Confirm Close Ticket Button --
         if (JSON.stringify(captureId).includes("approve") === true) {
           interaction.deferReply();
-          console.log("wtf")
+          console.log("Suggested Reply Command Ran")
           // Run OpenAI Stuff
           // OpenAI Stuff
         const getOpenAIStuff = db
@@ -1134,7 +1134,7 @@
               msgContent = `${msgContent}`;
             }
             if (msg.author.id === ticketOpener) {
-              if(msg.content === 'Kavio is a Roblox Cafe') {
+              if(msg.content === 'Arigo is an innovative Discord Bot company.') {
                 msgsArray.push({
                   role: "system",
                   content: msgContent,
