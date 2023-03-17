@@ -1158,10 +1158,6 @@
           });
           console.log("OpenAI Response", completion.data.choices[0].message.content)
           console.log("Messages Array", msgsArray)
-          if(completion.data.choices[0].message.content.toLocaleLowerCase().includes("none found")) {
-            // Skip
-            console.log("Skipped")
-          } else {
             var success
           const finalResponse =
             completion.data.choices[0].message.content.split(".");
@@ -1184,6 +1180,7 @@
               transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
             }
             if(success !== false) {
+
             await db
               .collection("bots")
               .doc(`${interaction.guild.id}`)
@@ -1198,7 +1195,7 @@
             //
         }
       }
-    }
+    
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
