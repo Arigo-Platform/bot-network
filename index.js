@@ -27,13 +27,13 @@
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const guildId = process.env["guildId"]
   // const clientId = process.env["clientId"]
-  const environment = "production";
+  // const environment = "production";
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
   // const guildId = "864016187107966996";
   // const clientId = "952310761869410455";
-  // const environment = "development";
+  const environment = "development";
 
   //----
   const express = require("express");
@@ -183,7 +183,7 @@
     }
     client.once("ready", async () => {
       // Node Deploy Commands (deploy-commands).js
-      await deployCommands(client.user.id, b.id, bot.token);
+      // await deployCommands(client.user.id, b.id, bot.token);
 
       const row = new ActionRowBuilder()
         .addComponents(
@@ -1156,7 +1156,8 @@
             max_tokens: 200,
             // temperature: 0
           });
-          console.log("wtf", completion.data.choices[0].message.content)
+          console.log("OpenAI Response", completion.data.choices[0].message.content)
+          console.log("Messages Array", msgsArray)
           if(completion.data.choices[0].message.content.toLocaleLowerCase().includes("none found")) {
             // Skip
             console.log("Skipped")
@@ -1174,7 +1175,6 @@
             success = false
           }
           
-          console.log("FAQs", FAQs);
           try {
           FAQs.map(async (item) => {
             const AITicketData = {
