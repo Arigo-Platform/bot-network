@@ -124,7 +124,6 @@
   });
 
   module.exports = events;
- 
 
   app.get("/", (req, res) => {
     res.send("Server Not Found - Key Missing");
@@ -266,7 +265,6 @@
       //       console.log(err.message);
       //     });
       console.log(`Ready for guild ${b.id}!`);
-      
 
       if (b.id === "864016187107966996") {
         // Get HEX Color
@@ -340,11 +338,13 @@
         });
       };
 
-      setActivity();
+      if (activities.length > 0) {
+        setActivity();
 
-      console.log(
-        `Set activity for ${b.id} to ${client.user.presence.activities[0].name} ${client.user.presence.activities[0].type}!`
-      );
+        console.log(
+          `Set activity for ${b.id} to ${client.user.presence.activities[0].name} ${client.user.presence.activities[0].type}!`
+        );
+      }
 
       setInterval(setActivity, 10000);
     });
@@ -855,7 +855,6 @@
       // }}) - Bot Suspension
     });
 
-
     // Ticket/Support Module
     // Deploy New Ticket Menu
     app.get("/bot/:botId/push/support-menu/:id", async (req, res) => {
@@ -933,7 +932,7 @@
 
         // Get Current Ticket Number from Database & Add Permissions To An Array
         var staffRolesFinal = [];
-        const staffRolesFromDb = ticket.data().staffRoles
+        const staffRolesFromDb = ticket.data().staffRoles;
         staffRolesFromDb.map(async (role) => {
           staffRolesFinal.push({
             id: role,
@@ -987,8 +986,7 @@
             // Ping Roles
             var pingRoles = ticket
               .data()
-              .pingRoles
-              .map((roleId) => ` <@&${roleId}>`);
+              .pingRoles.map((roleId) => ` <@&${roleId}>`);
             // Close Ticket Button
             const row = new ActionRowBuilder().addComponents(
               new ButtonBuilder()
@@ -1079,125 +1077,138 @@
           interaction.deferReply();
           // Run OpenAI Stuff
           // OpenAI Stuff
-        const getOpenAIStuff = db
-        .collection("bots")
-        .doc(`${interaction.guild.id}`)
-      const openAIKey = await getOpenAIStuff.get();
-      const channel = interaction.channel;
-      const firstMessage = await channel.messages.fetch({
-        limit: 1,
-        after: 0,
-      });
-
-      if(openAIKey.data().openAIAPIKey === undefined || openAIKey.data().openAIAPIKey.length === '') {
-        //
-      } else {
-      const configuration = new Configuration({
-      apiKey: openAIKey.data().openAIAPIKey,
-      });
-      const openai = new OpenAIApi(configuration);
-
-          let msgsArray = [];
-          var ticketOpener;
-          const msgs = await channel.messages.fetch({
-            cache: true,
-            force: true,
+          const getOpenAIStuff = db
+            .collection("bots")
+            .doc(`${interaction.guild.id}`);
+          const openAIKey = await getOpenAIStuff.get();
+          const channel = interaction.channel;
+          const firstMessage = await channel.messages.fetch({
+            limit: 1,
+            after: 0,
           });
-          const lastMessage = await channel.messages.fetch({ limit: 1 });
-          
-          ticketOpener = firstMessage
-            .first()
-            .content.split(",")[0]
-            .replaceAll("<", "")
-            .replaceAll("@", "")
-            .replaceAll(">", "");
-          await msgs.map((msg) => {
-            var msgContent = msg.content;
-            if (msg.author.bot) {
-              // if(msg.embeds[0] = []) return;
-              try {
-                if (msg.embeds[0].data.title.endsWith("said:")) {
-                  msgsArray.push({
-                    role: "user",
-                    content: msg.embeds[0].data.description.replaceAll("`", ""),
-                  });
+
+          if (
+            openAIKey.data().openAIAPIKey === undefined ||
+            openAIKey.data().openAIAPIKey.length === ""
+          ) {
+            //
+          } else {
+            const configuration = new Configuration({
+              apiKey: openAIKey.data().openAIAPIKey,
+            });
+            const openai = new OpenAIApi(configuration);
+
+            let msgsArray = [];
+            var ticketOpener;
+            const msgs = await channel.messages.fetch({
+              cache: true,
+              force: true,
+            });
+            const lastMessage = await channel.messages.fetch({ limit: 1 });
+
+            ticketOpener = firstMessage
+              .first()
+              .content.split(",")[0]
+              .replaceAll("<", "")
+              .replaceAll("@", "")
+              .replaceAll(">", "");
+            await msgs.map((msg) => {
+              var msgContent = msg.content;
+              if (msg.author.bot) {
+                // if(msg.embeds[0] = []) return;
+                try {
+                  if (msg.embeds[0].data.title.endsWith("said:")) {
+                    msgsArray.push({
+                      role: "user",
+                      content: msg.embeds[0].data.description.replaceAll(
+                        "`",
+                        ""
+                      ),
+                    });
+                  }
+                } catch {
+                  //
                 }
+              }
+              if (msg.content === "" || msg.author.bot === true) return;
+              if (msg.id === lastMessage.first().id) {
+                msgContent = `${msgContent}`;
+              }
+              if (msg.author.id === ticketOpener) {
+                msgsArray.push({
+                  role: "user",
+                  content: msgContent,
+                });
+              } else {
+                msgsArray.push({
+                  role: "system",
+                  content: msgContent,
+                });
+              }
+            });
+            // msgsArray.push({ role: 'system', content: 'You are an AI tasked with reviewing a closed customer support tickets messages between the system and user. Your ONLY responsible for identifying questions the user asked and the answers provided by the system, this means you are NOT responsible for providing a response to the user. You should them map these questions & answers and your response should use the format of Q: (Insert User Question) and A: (Insert Systerm Answer) and ensure they responses are wrapped in quotation marks.' })
+            msgsArray = msgsArray.map((item) => item).reverse();
+            msgsArray.push({
+              role: "user",
+              content:
+                'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs, just reply "None Found". DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS VITALLY IMPORTANT.',
+            });
+            const completion = await openai.createChatCompletion({
+              model: "gpt-3.5-turbo",
+              messages: msgsArray,
+              max_tokens: 200,
+              // temperature: 0
+            });
+            console.log("wtf", completion.data.choices[0].message.content);
+            if (
+              completion.data.choices[0].message.content
+                .toLocaleLowerCase()
+                .includes("none found")
+            ) {
+              // Skip
+              console.log("Skipped");
+            } else {
+              var success;
+              const finalResponse =
+                completion.data.choices[0].message.content.split(".");
+              console.log(completion.data.choices[0].message.content);
+              var FAQs = {};
+              try {
+                FAQs = JSON.parse(
+                  completion.data.choices[0].message.content.replaceAll("`", "")
+                );
+              } catch {
+                success = false;
+              }
+
+              console.log("FAQs", FAQs);
+              try {
+                FAQs.map(async (item) => {
+                  const AITicketData = {
+                    question: item.Q,
+                    answer: item.A,
+                    createdBy: "system",
+                    transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
+                  };
+                  if (success !== false) {
+                    await db
+                      .collection("bots")
+                      .doc(`${interaction.guild.id}`)
+                      .collection("support-ai-faqs")
+                      .doc(
+                        `${Math.floor(Math.random() * 9000000000) + 1000000000}`
+                      )
+                      .set(AITicketData)
+                      .then((data) => {
+                        console.log("Data", data);
+                      });
+                  }
+                });
               } catch {
                 //
               }
             }
-            if (msg.content === "" || msg.author.bot === true) return;
-            if (msg.id === lastMessage.first().id) {
-              msgContent = `${msgContent}`;
-            }
-            if (msg.author.id === ticketOpener) {
-              msgsArray.push({
-                role: "user",
-                content: msgContent,
-              });
-            } else {
-              msgsArray.push({
-                role: "system",
-                content: msgContent,
-              });
-            }
-          });
-          // msgsArray.push({ role: 'system', content: 'You are an AI tasked with reviewing a closed customer support tickets messages between the system and user. Your ONLY responsible for identifying questions the user asked and the answers provided by the system, this means you are NOT responsible for providing a response to the user. You should them map these questions & answers and your response should use the format of Q: (Insert User Question) and A: (Insert Systerm Answer) and ensure they responses are wrapped in quotation marks.' })
-          msgsArray = msgsArray.map((item) => item).reverse();
-          msgsArray.push({
-            role: "user",
-            content:
-            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs, just reply "None Found". DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS VITALLY IMPORTANT.',
-          });
-          const completion = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: msgsArray,
-            max_tokens: 200,
-            // temperature: 0
-          });
-          console.log("wtf", completion.data.choices[0].message.content)
-          if(completion.data.choices[0].message.content.toLocaleLowerCase().includes("none found")) {
-            // Skip
-            console.log("Skipped")
-          } else {
-            var success
-          const finalResponse =
-            completion.data.choices[0].message.content.split(".");
-          console.log(completion.data.choices[0].message.content);
-          var FAQs = {};
-          try {
-          FAQs = JSON.parse(
-            completion.data.choices[0].message.content.replaceAll("`", "")
-          )
-          } catch {
-            success = false
           }
-          
-          console.log("FAQs", FAQs);
-          try {
-          FAQs.map(async (item) => {
-            const AITicketData = {
-              question: item.Q,
-              answer: item.A,
-              createdBy: "system",
-              transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
-            }
-            if(success !== false) {
-            await db
-              .collection("bots")
-              .doc(`${interaction.guild.id}`)
-              .collection("support-ai-faqs")
-              .doc(`${Math.floor(Math.random() * 9000000000) + 1000000000}`)
-              .set(AITicketData).then(data => {
-                console.log("Data", data)
-              })
-            }
-          })
-        } catch {
-            //
-        }
-      }
-    }
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
@@ -1277,11 +1288,14 @@
           logChannelEmbed.setColor(
             initialReplyEmbedColor.members.me.displayColor
           );
-          client.channels.cache
-            .get(captureId[4])
-            .send({ embeds: [logChannelEmbed], components: [handleSuccessRow] })
+          client.channels.cache.get(captureId[4]).send({
+            embeds: [logChannelEmbed],
+            components: [handleSuccessRow],
+          });
 
-          return interaction.channel.delete(`This ticket has been closed by ${interaction.member.user.id}.`)
+          return interaction.channel.delete(
+            `This ticket has been closed by ${interaction.member.user.id}.`
+          );
         }
         // -- Reply To Cancel Close Ticket Button --
         else if (JSON.stringify(captureId).includes("cancel") === true) {
@@ -1386,7 +1400,7 @@
           .doc("current_number");
         const current = await getCurrent.get();
         var staffRolesFinal = [];
-        const staffRolesFromDb = ticket.data().staffRoles
+        const staffRolesFromDb = ticket.data().staffRoles;
         staffRolesFromDb.map(async (role) => {
           staffRolesFinal.push({
             id: role,
@@ -1440,8 +1454,7 @@
             // Ping Roles
             var pingRoles = ticket
               .data()
-              .pingRoles
-              .map((roleId) => ` <@&${roleId}>`);
+              .pingRoles.map((roleId) => ` <@&${roleId}>`);
             // Close Ticket Button
             const row = new ActionRowBuilder().addComponents(
               new ButtonBuilder()
@@ -2068,7 +2081,7 @@
         toSendToOwnerEmbed.setDescription(
           "This notification is to let you know that you've successfully setup your bot in `Arigo Community`, we'd like to welcome you to the Arigo family. We're here to provide you the tools your community needs to operate efficiently and better than ever.\n\nArigo provides industry-leading onboarding tools to get you started using our incredibly diverse platform. Feel free to reach out to your Account Executive, **Ishaan**, via email at ``ishaan@arigoapp.com`` if you need anything."
         );
-        toSendToOwnerEmbed.setColor('Green');
+        toSendToOwnerEmbed.setColor("Green");
         toSendToOwnerEmbed.setImage(
           "https://cdn.discordapp.com/attachments/819650597803393074/1020809031788539994/Hello_There.png"
         );
