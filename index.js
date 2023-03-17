@@ -1078,6 +1078,7 @@
         // -- Reply To Confirm Close Ticket Button --
         if (JSON.stringify(captureId).includes("approve") === true) {
           interaction.deferReply();
+          console.log("wtf")
           // Run OpenAI Stuff
           // OpenAI Stuff
         const getOpenAIStuff = db
@@ -1091,6 +1092,7 @@
       });
 
       if(openAIKey.data().openAIAPIKey === undefined || openAIKey.data().openAIAPIKey.length === '') {
+        console.log("OpenAI API Key Invalid For", interaction.guild.id)
         //
       } else {
       const configuration = new Configuration({
@@ -1132,6 +1134,13 @@
               msgContent = `${msgContent}`;
             }
             if (msg.author.id === ticketOpener) {
+              if(msg.content === 'Kavio is a Roblox Cafe') {
+                msgsArray.push({
+                  role: "system",
+                  content: msgContent,
+                });
+
+              }
               msgsArray.push({
                 role: "user",
                 content: msgContent,
@@ -1148,7 +1157,7 @@
           msgsArray.push({
             role: "user",
             content:
-            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs, just reply "None Found". DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS VITALLY IMPORTANT.',
+            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs whatsoever, just reply "None Found" as a string. DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS CRITICALLY IMPORTANT.',
           });
           const completion = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
@@ -1159,8 +1168,6 @@
           console.log("OpenAI Response", completion.data.choices[0].message.content)
           console.log("Messages Array", msgsArray)
             var success
-          const finalResponse =
-            completion.data.choices[0].message.content.split(".");
           console.log(completion.data.choices[0].message.content);
           var FAQs = {};
           try {

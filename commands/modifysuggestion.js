@@ -135,10 +135,10 @@ module.exports = {
                   value: `${reason}`,
                   inline: true,
                 });
-                // embed.setFooter({
-                // text: `ID: ${suggestionId} | Powered by Arigo Platform`,
-                // iconURL: interaction.client.user.displayAvatarURL()
-                // })
+                embed.setFooter({
+                text: `ID: ${suggestionId}`,
+                iconURL: interaction.client.user.displayAvatarURL()
+                })
                 embed.setColor("Green");
                 message.edit({ embeds: [embed] });
               });
@@ -257,10 +257,10 @@ module.exports = {
                   value: `${reason}`,
                   inline: true,
                 });
-                // embed.setFooter({
-                // text: `ID: ${suggestionId} | Powered by Arigo Platform`,
-                // iconURL: interaction.client.user.displayAvatarURL()
-                // })
+                embed.setFooter({
+                text: `ID: ${suggestionId}`,
+                iconURL: interaction.client.user.displayAvatarURL()
+                })
                 embed.setColor("Red");
                 message.edit({ embeds: [embed] });
               });
@@ -380,10 +380,10 @@ module.exports = {
                   value: `${reason}`,
                   inline: true,
                 });
-                // embed.setFooter({
-                // text: `ID: ${suggestionId} | Powered by Arigo Platform`,
-                // iconURL: interaction.client.user.displayAvatarURL()
-                // })
+                embed.setFooter({
+                text: `ID: ${suggestionId}`,
+                iconURL: interaction.client.user.displayAvatarURL()
+                })
                 embed.setColor("Yellow");
                 message.edit({ embeds: [embed] });
               });
@@ -503,10 +503,10 @@ module.exports = {
                   value: `${reason}`,
                   inline: true,
                 });
-                // embed.setFooter({
-                // text: `ID: ${suggestionId} | Powered by Arigo Platform`,
-                // iconURL: interaction.client.user.displayAvatarURL()
-                // })
+                embed.setFooter({
+                text: `ID: ${suggestionId}`,
+                iconURL: interaction.client.user.displayAvatarURL()
+                })
                 embed.setColor("BLACK");
                 message.edit({ embeds: [embed] });
               });
