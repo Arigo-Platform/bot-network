@@ -27,13 +27,13 @@
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const guildId = process.env["guildId"]
   // const clientId = process.env["clientId"]
-  const environment = "production";
+  // const environment = "production";
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
   // const guildId = "864016187107966996";
   // const clientId = "952310761869410455";
-  // const environment = "development";
+  const environment = "development";
 
   //----
   const express = require("express");
@@ -183,7 +183,7 @@
     }
     client.once("ready", async () => {
       // Node Deploy Commands (deploy-commands).js
-      await deployCommands(client.user.id, b.id, bot.token);
+      // await deployCommands(client.user.id, b.id, bot.token);
 
       const row = new ActionRowBuilder()
         .addComponents(
@@ -1134,13 +1134,6 @@
               msgContent = `${msgContent}`;
             }
             if (msg.author.id === ticketOpener) {
-              if(msg.content === 'Arigo is an innovative Discord Bot company.') {
-                msgsArray.push({
-                  role: "system",
-                  content: msgContent,
-                });
-
-              }
               msgsArray.push({
                 role: "user",
                 content: msgContent,
@@ -1157,7 +1150,7 @@
           msgsArray.push({
             role: "user",
             content:
-            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any FAQs whatsoever, just reply "None Found" as a string. DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS CRITICALLY IMPORTANT.',
+            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any useful FAQs within the conversation whatsoever, JUST reply "None Found" as a string. DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS CRITICALLY IMPORTANT.',
           });
           const completion = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
@@ -1166,6 +1159,10 @@
             // temperature: 0
           });
           console.log("OpenAI Response", completion.data.choices[0].message.content)
+          if(completion.data.choices[0].message.content.toLowerCase().includes("none found")) {
+            success = false
+            console.log("Caught None Found")
+          }
           console.log("Messages Array", msgsArray)
             var success
           console.log(completion.data.choices[0].message.content);
@@ -1175,19 +1172,23 @@
             completion.data.choices[0].message.content.replaceAll("`", "")
           )
           } catch {
+            console.log("Error Parsing FAQs")
             success = false
           }
           
+          if(success !== false) {
           try {
           FAQs.map(async (item) => {
+            if(item.Q === undefined || null) return success = false
             const AITicketData = {
               question: item.Q,
               answer: item.A,
               createdBy: "system",
               transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
             }
+          
             if(success !== false) {
-
+              console.log("Adding FAQ")
             await db
               .collection("bots")
               .doc(`${interaction.guild.id}`)
@@ -1202,7 +1203,7 @@
             //
         }
       }
-    
+    }
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
