@@ -27,7 +27,12 @@
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const guildId = process.env["guildId"]
   // const clientId = process.env["clientId"]
-  const environment = "production";
+  let environment
+  if(process.env['env'] === "production") {
+    environment = "production";
+  } else {
+    environment = "development"
+  }
 
   // MAKE SURE TO TURN ON NODE DEPLOY COMMANDS- JS
   // const token = 'OTUyMzEwNzYxODY5NDEwNDU1.GxTOp_.Wlbpsux_Kzl7yZ7_0K1e6J7hK7ysch7gzyz9dI'
@@ -1164,7 +1169,9 @@
             console.log("Caught None Found")
           }
           console.log("Messages Array", msgsArray)
+          
             var success
+            console.log("1")
           console.log(completion.data.choices[0].message.content);
           var FAQs = {};
           try {
@@ -1175,10 +1182,13 @@
             console.log("Error Parsing FAQs")
             success = false
           }
-          
+          console.log("2")
           if(success !== false) {
+            console.log("3")
           try {
+            console.log("4")
           FAQs.map(async (item) => {
+            console.log("5", item)
             if(item.Q === undefined || null) return success = false
             const AITicketData = {
               question: item.Q,
@@ -1186,8 +1196,9 @@
               createdBy: "system",
               transcript: `https://transcripts.arigoapp.com/${interaction.guild.id}/${captureId[3]}.html`,
             }
-          
+            console.log("6")
             if(success !== false) {
+              console.log("7")
               console.log("Adding FAQ")
             await db
               .collection("bots")
@@ -1199,6 +1210,7 @@
               })
             }
           })
+          console.log("8")
         } catch {
             //
         }
