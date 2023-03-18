@@ -26,7 +26,7 @@ async function deploy(clientId, guildId, token) {
     '864016187107966996', // Arigo Community
     '1059232854028062830', // Examply
     '970446611874467930', // Kavio (Kosma)
-    ''
+    '1035249668210298901' // Kestia (Landon)
   ]
   const commands = [];
   const commandFiles = fs
