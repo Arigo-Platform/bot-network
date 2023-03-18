@@ -1217,6 +1217,7 @@
         }
       }
     }
+    console.log("9")
           // embed.setDescription("```" + finalResponse[finalResponse.length -2] + ".```")
           // Make Transcript
           const attachment = await discordTranscripts.createTranscript(
@@ -1230,6 +1231,7 @@
               poweredBy: false, // Whether to include the "Powered by discord-html-transcripts" footer
             }
           );
+          console.log('10')
 
           // // The ID of your GCS bucket
           const bucketName = `transcripts.arigoapp.com`;
@@ -1242,6 +1244,7 @@
             storage.bucket(bucketName).makePublic();
           }
           uploadFromMemory().catch(console.error);
+          console.log('11')
           const handleSuccessRow = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
               .setLabel("View Transcript")
@@ -1260,6 +1263,7 @@
             embeds: [confirmEmbed],
             components: [handleSuccessRow],
           });
+          console.log("12")
           // Log In Log Channel
           let ticketAuthorId;
           let ticketCreatedTimestamp;
@@ -1299,8 +1303,9 @@
           client.channels.cache
             .get(captureId[4])
             .send({ embeds: [logChannelEmbed], components: [handleSuccessRow] })
-
+            console.log("13")
           return interaction.channel.delete(`This ticket has been closed by ${interaction.member.user.id}.`)
+          console.log("14")
         }
         // -- Reply To Cancel Close Ticket Button --
         else if (JSON.stringify(captureId).includes("cancel") === true) {
