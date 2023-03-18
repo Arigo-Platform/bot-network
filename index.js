@@ -1185,8 +1185,9 @@
           console.log("2")
           if(success !== false) {
             console.log("3")
+            console.log("FAQS", FAQs)
           try {
-            console.log("4")
+            console.log("4", success)
           FAQs.map(async (item) => {
             console.log("5", item)
             if(item.Q === undefined || null) return success = false
