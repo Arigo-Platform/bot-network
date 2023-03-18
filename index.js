@@ -1155,7 +1155,6 @@
           msgsArray.push({
             role: "user",
             content:
-            'Format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response. Return in JSON Object structure without a parent object tite. If you are unable to locate any useful FAQs within the conversation whatsoever, JUST reply "None Found" as a string. DO NOT UNDER ANY CIRCUMSTANCES provide incorrect FAQs that are not included in the messages AND NEVER MAKE UP DATA, THIS IS CRITICALLY IMPORTANT.',
             'You are an AI tasked with reviewig the messages above to identify pairs of questions & answers that can be used in a Customer Support knowledge base. If you feel as the content in the messages is relevant to multiple people, format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response; return in JSON Object structure without a parent object tite. If you are unable to locate any useful FAQs within the messages, reply "None Found" as a string. Do NOT provide incorrect data that are not included within the messages directly above.',
           });
           const completion = await openai.createChatCompletion({
