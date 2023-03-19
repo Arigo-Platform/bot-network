@@ -22,12 +22,7 @@ async function deploy(clientId, guildId, token) {
   let moderation = "ERROR - Stuck at Var";
   let suggestion = "ERROR - Stuck at Var";
   let utility = "ERROR - Stuck at Var";
-  const betaServers = [
-    '864016187107966996', // Arigo Community
-    '1059232854028062830', // Examply
-    '970446611874467930', // Kavio (Kosma)
-    '1035249668210298901' // Kestia (Landon)
-  ]
+
   const commands = [];
   const commandFiles = fs
     .readdirSync("./commands")
@@ -92,9 +87,6 @@ async function deploy(clientId, guildId, token) {
     .doc("utility");
   const utilityDoc = await dataUtility.get();
   if (utilityDoc.data().status === "enabled") {
-    if(betaServers.includes(guildId)) {
-      enabled.push("suggestedreply")
-    }
     enabled.push(
       "serverinfo",
       "calculator",
@@ -103,9 +95,9 @@ async function deploy(clientId, guildId, token) {
       "say",
       "userinfo",
       "8ball",
+      "suggestedreply"
     );
   } else if (utilityDoc.data().status === "disabled") {
-
     const toRemove = [
       "calculator",
       "serverinfo",
@@ -116,9 +108,6 @@ async function deploy(clientId, guildId, token) {
       "8ball",
       "suggestedreply",
     ];
-    if(betaServers.includes(guildId)) {
-      toRemove.push("suggestedreply")
-    }
     enabled.forEach((enabled) => {
       commandFiles.filter((file) => file.startsWith(toRemove));
     });

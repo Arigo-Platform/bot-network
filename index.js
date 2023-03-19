@@ -147,7 +147,6 @@
   } else {
     bots = [
       await db.collection("bots").doc("864016187107966996").get(),
-      await db.collection("bots").doc("962844631165456471").get(),
     ]; // node fuckery lol
   }
 
@@ -1152,10 +1151,12 @@
           });
           // msgsArray.push({ role: 'system', content: 'You are an AI tasked with reviewing a closed customer support tickets messages between the system and user. Your ONLY responsible for identifying questions the user asked and the answers provided by the system, this means you are NOT responsible for providing a response to the user. You should them map these questions & answers and your response should use the format of Q: (Insert User Question) and A: (Insert Systerm Answer) and ensure they responses are wrapped in quotation marks.' })
           msgsArray = msgsArray.map((item) => item).reverse();
+          console.log("what", msgsArray)
           msgsArray.push({
             role: "user",
             content:
-            'You are an AI tasked with reviewig the messages above to identify pairs of questions & answers that can be used in a Customer Support knowledge base. If you feel as the content in the messages is relevant to multiple people, format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response; return in JSON Object structure without a parent object tite. If you are unable to locate any useful FAQs within the messages, reply "None Found" as a string. Do NOT provide incorrect data that are not included within the messages directly above.',
+            'Identify questions and answers. If you cant find any, say "None Found"'
+            // 'You are an AI tasked with reviewig the messages above to identify pairs of questions & answers that can be used in a Customer Support knowledge base. If you feel as the content in the messages is relevant to multiple people, format the messages above in an FAQ format of "Q: (Insert User Question) and A: (Insert Systerm Answer)" and ensure the responses are wrapped in quotation marks, do not include anything else in your response; return in JSON Object structure without a parent object tite. If you are unable to locate any useful FAQs within the messages, reply "None Found" as a string. Do NOT provide incorrect data that are not included within the messages directly above.',
           });
           const completion = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
