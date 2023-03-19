@@ -22,7 +22,7 @@ module.exports = {
 
           {
             name: "Member Count  👥",
-            value: `${server.memberCount}`,
+            value: `${server.memberCount.toLocaleString()}`,
             inline: true,
           },
 
