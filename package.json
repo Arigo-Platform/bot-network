@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@google-cloud/firestore": "^5.0.2",
+    "@google-cloud/firestore": "^6.6.1",
     "@google-cloud/storage": "^6.9.3",
     "@sentry/hub": "^7.39.0",
     "@sentry/node": "^7.17.3",
