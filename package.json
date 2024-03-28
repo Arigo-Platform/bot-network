@@ -12,7 +12,7 @@
     "discord-emoji-convert": "^2.1.2",
     "discord-html-transcripts": "^3.1.3",
     "discord.js": "^14.7.1",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "firebase": "^9.6.10",
     "mathjs": "^10.5.0",
     "moment": "^2.29.4",
